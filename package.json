@@ -1,0 +1,79 @@
+{
+	"name": "dtomaker",
+	"displayName": "dtomaker",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.31.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.dtomaker"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.dtomaker",
+				"title": "Make DTO"
+			}
+		],
+		"configuration": [
+			{
+				"title": "DTOMaker configuration",
+				"properties": {
+					"dtomaker.database.host": {
+						"type": "string",
+						"default": "localhost",
+						"description": "DTOを作るデータベースのホスト"
+					},
+					"dtomaker.database.port": {
+						"type": "integer",
+						"default": 3306,
+						"description": "DTOを作るデータベースのポート"
+					},
+					"dtomaker.database.userName": {
+						"type": "string",
+						"default": "root",
+						"description": "DTOを作るデータベースのユーザー名"
+					},
+					"dtomaker.database.password": {
+						"type": "string",
+						"default": "",
+						"description": "DTOを作るデータベースのパスワード"
+					},
+					"dtomaker.database.name": {
+						"type": "string",
+						"default": "",
+						"description": "DTOを作るデータベース名"
+					},
+					"dtomaker.output.path": {
+						"type": "string",
+						"default": "",
+						"description": "DTO出力先のパス"
+					}
+				}
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"@types/mocha": "^2.2.42",
+		"@types/mysql": "^2.15.5",
+		"@types/node": "^10.12.21",
+		"tslint": "^5.12.1",
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28"
+	},
+	"dependencies": {
+		"mysql": "^2.16.0"
+	}
+}
