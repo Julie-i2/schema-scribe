@@ -24,35 +24,60 @@
 			{
 				"title": "DTOMaker configuration",
 				"properties": {
-					"dtomaker.database.host": {
+					"DTOMaker.database.host": {
 						"type": "string",
 						"default": "localhost",
-						"description": "DTOを作るデータベースのホスト"
+						"description": "データベースのホスト"
 					},
-					"dtomaker.database.port": {
+					"DTOMaker.database.port": {
 						"type": "integer",
 						"default": 3306,
-						"description": "DTOを作るデータベースのポート"
+						"description": "データベースのポート"
 					},
-					"dtomaker.database.userName": {
+					"DTOMaker.database.userName": {
 						"type": "string",
 						"default": "root",
-						"description": "DTOを作るデータベースのユーザー名"
+						"description": "データベースのユーザー名"
 					},
-					"dtomaker.database.password": {
+					"DTOMaker.database.password": {
 						"type": "string",
 						"default": "",
-						"description": "DTOを作るデータベースのパスワード"
+						"description": "データベースのパスワード"
 					},
-					"dtomaker.database.name": {
+					"DTOMaker.database.name": {
 						"type": "string",
 						"default": "",
-						"description": "DTOを作るデータベース名"
+						"description": "データベース名"
 					},
-					"dtomaker.output.path": {
+					"DTOMaker.io.outputPath": {
 						"type": "string",
 						"default": "",
-						"description": "DTO出力先のパス"
+						"description": "出力先のパス。※ワークスペースからの相対で指定"
+					},
+					"DTOMaker.io.outputReset": {
+						"type": "boolean",
+						"default": true,
+						"description": "DTO生成前に出力先フォルダの中身をすべて削除する"
+					},
+					"DTOMaker.io.templatePath": {
+						"type": "string",
+						"default": "",
+						"description": "テンプレートファイルのパス。※ワークスペースからの相対で指定"
+					},
+					"DTOMaker.config.classNamePrefix": {
+						"type": "string",
+						"default": "",
+						"description": "DTOクラス名のPrefix"
+					},
+					"DTOMaker.config.classNameSuffix": {
+						"type": "string",
+						"default": "DTO",
+						"description": "DTOクラス名のSuffix"
+					},
+					"DTOMaker.config.ltrimTableName": {
+						"type": "string",
+						"default": "table_",
+						"description": "テーブル名からマッチした先頭文字を取り外す"
 					}
 				}
 			}
