@@ -1,65 +1,82 @@
-# dtomaker README
+# DTO Maker
 
-This is the README for your extension "dtomaker". After writing up a brief description, we recommend including the following sections.
+これはあなたの拡張機能 "dtomaker"のためのREADMEです。簡単な説明を書き終えたら、次のセクションを含めることをお勧めします。
 
-## Features
+<br />
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 特徴
 
-For example if there is an image subfolder under your extension project workspace:
+実際のエクステンションのスクリーンショットなど、エクステンションの特定の機能について説明してください。イメージパスはこのREADMEファイルを基準にしています。
 
-\!\[feature X\]\(images/feature-x.png\)
+![feature X](images/screenshot.png)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+> ヒント：多くの一般的な拡張機能はアニメーションを利用します。これはあなたの拡張機能を披露するための優れた方法です！従うことが簡単で、焦点を絞った短いアニメーションをお勧めします。
 
-## Requirements
+<br />
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## 必要条件
 
-## Extension Settings
+要件や依存関係がある場合は、それらを説明し、それらをインストールおよび構成する方法を説明したセクションを追加してください。
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+<br />
+
+## 拡張設定
+
+あなたの拡張がcontrib.configuration拡張ポイントを通して任意のVS Code設定を追加するかどうか含めてください。
 
 For example:
 
-This extension contributes the following settings:
+``` json
+"DTOMaker.configs": [
+    {
+        // データベースのホスト
+        "database.host": "192.168.1.100",
+        // データベースのポート
+        "database.port": 3306,
+        // データベースのユーザー名
+        "database.user": "root",
+        // データベースのパスワード
+        "database.password": "pass",
+        // データベース名
+        "database.databse": "system_name",
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+        // 出力先のパス [default "${workspaceRoot}\\output"]
+        "io.outputPath": "${workspaceRoot}\\classes\\IO\\DataBase\\DTO",
+        // DTO生成前に出力先フォルダの中身をすべて削除する [default true]
+        "io.outputReset": true,
+        // テンプレートファイルのパス [default "${workspaceRoot}\\template.txt"]
+        "io.templatePath": "${workspaceRoot}\\.vscode\\dto-template.txt",
 
-## Known Issues
+        // DTOクラス名のPrefix・Suffix [default "${className}DTO"]
+        "format.className": "${className}DTO",
+        // テーブル名からマッチした先頭文字を取り外す [default "table_"]
+        "format.ltrimTableName": "table_",
+    }
+]
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### 置き換え文字
 
-## Release Notes
+出力先フォルダやテンプレートファイルの場所を指定する際の置き換え文字。
 
-Users appreciate release notes as you update your extension.
+|置き換え文字|説明|
+|---|---|
+|`${workspaceRoot}`|ワークスペースルートフォルダ|
+|`${workspaceFolder}`|VS Codeで開かれたフォルダのパス|
+|`${className}`|DTOクラス・ファイル名|
+
+<br />
+
+## 既知の問題点
+
+既知の問題を指摘することで、内線番号に対して重複する問題を開くユーザーを制限することができます。
+
+<br />
+
+## リリースノート
+
+エクステンションをアップデートするにつれて、ユーザはリリースノートに感謝します。
 
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+初期リリース

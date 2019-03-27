@@ -1,104 +1,126 @@
 {
-	"name": "dtomaker",
-	"displayName": "dtomaker",
-	"description": "",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.31.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.dtomaker"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "extension.dtomaker",
-				"title": "Make DTO"
-			}
-		],
-		"configuration": [
-			{
-				"title": "DTOMaker configuration",
-				"properties": {
-					"DTOMaker.database.host": {
-						"type": "string",
-						"default": "localhost",
-						"description": "データベースのホスト"
-					},
-					"DTOMaker.database.port": {
-						"type": "integer",
-						"default": 3306,
-						"description": "データベースのポート"
-					},
-					"DTOMaker.database.userName": {
-						"type": "string",
-						"default": "root",
-						"description": "データベースのユーザー名"
-					},
-					"DTOMaker.database.password": {
-						"type": "string",
-						"default": "",
-						"description": "データベースのパスワード"
-					},
-					"DTOMaker.database.name": {
-						"type": "string",
-						"default": "",
-						"description": "データベース名"
-					},
-					"DTOMaker.io.outputPath": {
-						"type": "string",
-						"default": "",
-						"description": "出力先のパス。※ワークスペースからの相対で指定"
-					},
-					"DTOMaker.io.outputReset": {
-						"type": "boolean",
-						"default": true,
-						"description": "DTO生成前に出力先フォルダの中身をすべて削除する"
-					},
-					"DTOMaker.io.templatePath": {
-						"type": "string",
-						"default": "",
-						"description": "テンプレートファイルのパス。※ワークスペースからの相対で指定"
-					},
-					"DTOMaker.config.classNamePrefix": {
-						"type": "string",
-						"default": "",
-						"description": "DTOクラス名のPrefix"
-					},
-					"DTOMaker.config.classNameSuffix": {
-						"type": "string",
-						"default": "DTO",
-						"description": "DTOクラス名のSuffix"
-					},
-					"DTOMaker.config.ltrimTableName": {
-						"type": "string",
-						"default": "table_",
-						"description": "テーブル名からマッチした先頭文字を取り外す"
-					}
-				}
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test"
-	},
-	"devDependencies": {
-		"@types/mocha": "^2.2.42",
-		"@types/mysql": "^2.15.5",
-		"@types/node": "^10.12.21",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28"
-	},
-	"dependencies": {
-		"mysql": "^2.16.0"
-	}
+    "name": "dtomaker",
+    "displayName": "dtomaker",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.31.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.dtomaker"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.dtomaker",
+                "title": "Make DTO"
+            }
+        ],
+        "configuration": [
+            {
+                "title": "DTOMaker configuration",
+                "properties": {
+                    "DTOMaker.configs": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "title": "DTOの設定",
+                            "properties": {
+                                "database": {
+                                    "type": "object",
+                                    "title": "DataBase設定",
+                                    "properties": {
+                                        "host": {
+                                            "type": "string",
+                                            "default": "localhost",
+                                            "description": "データベースのホスト"
+                                        },
+                                        "port": {
+                                            "type": "integer",
+                                            "default": 3306,
+                                            "description": "データベースのポート"
+                                        },
+                                        "user": {
+                                            "type": "string",
+                                            "default": "root",
+                                            "description": "データベースのユーザー名"
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "default": "",
+                                            "description": "データベースのパスワード"
+                                        },
+                                        "database": {
+                                            "type": "string",
+                                            "default": "",
+                                            "description": "データベース名"
+                                        }
+                                    }
+                                },
+                                "io": {
+                                    "type": "object",
+                                    "title": "生成ファイル設定",
+                                    "properties": {
+                                        "outputPath": {
+                                            "type": "string",
+                                            "default": "${workspaceRoot}\\output",
+                                            "description": "出力先のパス"
+                                        },
+                                        "outputReset": {
+                                            "type": "boolean",
+                                            "default": true,
+                                            "description": "DTO生成前に出力先フォルダの中身をすべて削除する"
+                                        },
+                                        "templatePath": {
+                                            "type": "string",
+                                            "default": "${workspaceRoot}\\template.txt",
+                                            "description": "テンプレートファイルのパス"
+                                        }
+                                    }
+                                },
+                                "format": {
+                                    "type": "object",
+                                    "title": "フォーマット設定",
+                                    "properties": {
+                                        "className": {
+                                            "type": "string",
+                                            "default": "${className}DTO",
+                                            "description": "DTOクラス名のPrefix・Suffix"
+                                        },
+                                        "ltrimTableName": {
+                                            "type": "string",
+                                            "default": "table_",
+                                            "description": "テーブル名からマッチした先頭文字を取り外す"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/mysql": "^2.15.5",
+        "@types/node": "^10.12.21",
+        "tslint": "^5.12.1",
+        "typescript": "^3.3.1",
+        "vscode": "^1.1.28"
+    },
+    "dependencies": {
+        "mysql": "^2.16.0"
+    }
 }
