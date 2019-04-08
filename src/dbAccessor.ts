@@ -60,7 +60,11 @@ export class DBAccessor {
         });
     }
 
-    getTableColumns(tableName: string) {
+    /**
+     * テーブルカラム情報を取得
+     * @param tableName テーブル名
+     */
+    getTableColumns(tableName: string): Promise<DBTableColumn[]> {
         return new Promise((resolve, reject) => {
             const sql = 'SHOW FULL COLUMNS FROM `' + tableName + '`;';
             this.con.query(sql, (err: MysqlError | null, results: any[]) => {

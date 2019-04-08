@@ -2,25 +2,25 @@ import { writeFile, readFileSync, writeFileSync } from 'fs';
 import { DBTable, DBTableColumn } from './dbAccessor';
 
 /** 正規表現パターン：クラス名 */
-const PATTERN_CLASS_NAME = /\{\{class_name\}\}/;
+const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g;
 /** 正規表現パターン：クラス説明 */
-const PATTERN_CLASS_DESCRIPTION = /\{\{class_desc\}\}/;
+const PATTERN_CLASS_DESCRIPTION = /\{\{class_desc\}\}/g;
 /** 正規表現パターン：テーブル名 */
-const PATTERN_TABLE_NAME = /\{\{table_name\}\}/;
+const PATTERN_TABLE_NAME = /\{\{table_name\}\}/g;
 /** 正規表現パターン：エンジン */
-const PATTERN_ENGINE = /\{\{engine\}\}/;
+const PATTERN_ENGINE = /\{\{engine\}\}/g;
 /** 正規表現パターン：プライマリID */
-const PATTERN_PRIMARY_ID = /\{\{primary_id\}\}/;
+const PATTERN_PRIMARY_ID = /\{\{primary_id\}\}/g;
 /** 正規表現パターン：フィールドリスト */
 const PATTERN_FIELD_LIST = /<<<fields_list(\r\n|\n)(.*)>>>fields_list(\r\n|\n)/s;
 /** 正規表現パターン(フィールド)：フィールドコメント */
-const PATTERN_FIELD_COMMENT = /\{\{field_comment\}\}/;
+const PATTERN_FIELD_COMMENT = /\{\{field_comment\}\}/g;
 /** 正規表現パターン(フィールド)：フィールド型 */
-const PATTERN_FIELD_TYPE = /\{\{field_type\}\}/;
+const PATTERN_FIELD_TYPE = /\{\{field_type\}\}/g;
 /** 正規表現パターン(フィールド)：フィールド名 */
-const PATTERN_FIELD_NAME = /\{\{field_name\}\}/;
+const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g;
 /** 正規表現パターン(フィールド)：フィールドの既定値 */
-const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/;
+const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/g;
 
 /**
  * DTOテンプレート
@@ -37,10 +37,9 @@ export class Template
      * コンストラクタ
      * @param fileName ファイル名
      */
-    constructor(fileName: string, classNameFormat: string | null, ltrimTableName: string | null)
+    public constructor(fileName: string, classNameFormat: string | null, ltrimTableName: string | null)
     {
-        const buff = readFileSync(fileName, 'utf8');
-        console.log(buff);
+        this.template = readFileSync(fileName, 'utf8');
         this.classNameFormat = classNameFormat || '';
         this.ltrimTableName = ltrimTableName || '';
 
@@ -96,7 +95,7 @@ export class DTOWriter {
      * @param fieldTemplate フィールドリストテンプレート
      * @param className テーブル名
      */
-    constructor(content: string, fieldTemplate: string, className: string)
+    public constructor(content: string, fieldTemplate: string, className: string)
     {
         this.content = content;
         this.fieldTemplate = fieldTemplate;
@@ -151,7 +150,7 @@ export class DTOWriter {
         this.content = this.content.replace(PATTERN_TABLE_NAME, this.tableInfo.name);
         this.content = this.content.replace(PATTERN_ENGINE, this.tableInfo.engine);
         this.content = this.content.replace(PATTERN_PRIMARY_ID, this.primaryKey);
-        this.content = this.content.replace(PATTERN_FIELD_LIST, this.replaceFields.join());
+        this.content = this.content.replace(PATTERN_FIELD_LIST, this.replaceFields.join(''));
     }
 
     /**

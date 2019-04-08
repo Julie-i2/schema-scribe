@@ -10,14 +10,21 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.dtomaker"
+        "onCommand:extension.dtomaker.all",
+        "onCommand:extension.dtomaker.one"
     ],
-    "main": "./out/extension.js",
+    "main": "./out/src/extension.js",
     "contributes": {
         "commands": [
             {
-                "command": "extension.dtomaker",
-                "title": "Make DTO"
+                "command": "extension.dtomaker.all",
+                "title": "%extension.dtomaker.all.title%",
+                "category": "DTO Maker"
+            },
+            {
+                "command": "extension.dtomaker.one",
+                "title": "%extension.dtomaker.one.title%",
+                "category": "DTO Maker"
             }
         ],
         "configuration": [
@@ -96,6 +103,16 @@
                                             "default": "table_",
                                             "description": "テーブル名からマッチした先頭文字を取り外す"
                                         }
+                                    }
+                                },
+                                "tableList": {
+                                    "type": "array",
+                                    "title": "テーブル一覧",
+                                    "default": [],
+                                    "items": {
+                                        "type": "string",
+                                        "default": "",
+                                        "description": "テーブル名"
                                     }
                                 }
                             }
