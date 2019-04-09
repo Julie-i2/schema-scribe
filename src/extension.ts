@@ -19,26 +19,19 @@ export function activate(context: vscode.ExtensionContext) {
      * 設定されたDTOをすべて作成する
      */
     let disposableAll = vscode.commands.registerCommand('extension.dtomaker.all', () => {
-        // DTO作成
+        const outputChannel = vscode.window.createOutputChannel('DTO Maker');
         try {
             const configuration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('DTOMaker');
             const settings: Array<any> = configuration.get('configs') || [];
+            outputChannel.appendLine(JSON.stringify(settings));
             settings.forEach(config => {
                 const dtomaker = new DTOMaker(config);
-                dtomaker.dataGet();
+                dtomaker.build();
             });
         } catch (err) {
-            vscode.window.showErrorMessage('DTO Maker: error');
-            console.log(err);
+            vscode.window.showErrorMessage('【DTO Maker】error: ' + err);
+            outputChannel.appendLine(err.toString());
         }
-
-        if (!vscode.workspace.workspaceFolders) {
-            vscode.window.showErrorMessage('DTO Maker: WorkSpace上でないと使用できません');
-            return;
-        }
-        const outputPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        console.log(vscode.workspace.workspaceFolders[0].uri);
-        console.log(outputPath);
     });
 
     /**

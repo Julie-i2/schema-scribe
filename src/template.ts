@@ -1,5 +1,7 @@
-import { writeFile, readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { DBTable, DBTableColumn } from './dbAccessor';
+import { DataTypeFinder } from './dataType';
+import { SettingFormat } from './dtomaker';
 
 /** 正規表現パターン：クラス名 */
 const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g;
@@ -22,6 +24,7 @@ const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g;
 /** 正規表現パターン(フィールド)：フィールドの既定値 */
 const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/g;
 
+
 /**
  * DTOテンプレート
  */
@@ -32,16 +35,18 @@ export class Template
     fieldTemplate: string = '';
     classNameFormat: string = '';
     ltrimTableName: string = '';
+    dataTypeFinder: DataTypeFinder;
 
     /**
      * コンストラクタ
      * @param fileName ファイル名
      */
-    public constructor(fileName: string, classNameFormat: string | null, ltrimTableName: string | null)
+    public constructor(fileName: string, settingFormat: SettingFormat)
     {
         this.template = readFileSync(fileName, 'utf8');
-        this.classNameFormat = classNameFormat || '';
-        this.ltrimTableName = ltrimTableName || '';
+        this.classNameFormat = settingFormat.className || '';
+        this.ltrimTableName = settingFormat.ltrimTableName || '';
+        this.dataTypeFinder = new DataTypeFinder(settingFormat.defaultValues);
 
         // テンプレートからフィールドテンプレートを抜き出す
         const matches = this.template.match(PATTERN_FIELD_LIST);
@@ -62,12 +67,26 @@ export class Template
             const ltrimRegex = new RegExp('/^' + this.ltrimTableName + '/');
             tableName = tableName.replace(ltrimRegex, '');
         }
-        tableName = Text.camelize(tableName);
+        tableName = this.camelize(tableName);
         const classNameRegex = /\${className}/;
         if (this.classNameFormat && classNameRegex.test(this.classNameFormat)) {
             tableName = this.classNameFormat.replace(classNameRegex, tableName);
         }
-        return new DTOWriter(this.template, this.fieldTemplate, tableName);
+        return new DTOWriter(this.template, this.fieldTemplate, tableName, this.dataTypeFinder);
+    }
+
+    /**
+     * スネイクケースからキャメルケースに変換する
+     * @param source スネイクケース
+     * @returns キャメルケース
+     */
+    public camelize(source: string) : string
+    {
+        return source
+            .replace(/_/g, ' ')
+            .replace(/^(.)|\s+(.)/g, ($1) => $1.toUpperCase())
+            .replace(/\s/g, '')
+            .replace(/^[a-z]/g, (val) => val.toUpperCase());
     }
 }
 
@@ -88,6 +107,8 @@ export class DTOWriter {
     private primaryKey: string = '';
     /** 置き換えフィールド保持配列 */
     private replaceFields: Array<string> = [];
+    /** デフォルト値 */
+    private dataTypeFinder: DataTypeFinder;
 
     /**
      * コンストラクタ
@@ -95,12 +116,13 @@ export class DTOWriter {
      * @param fieldTemplate フィールドリストテンプレート
      * @param className テーブル名
      */
-    public constructor(content: string, fieldTemplate: string, className: string)
+    public constructor(content: string, fieldTemplate: string, className: string, dataTypeFinder: DataTypeFinder)
     {
         this.content = content;
         this.fieldTemplate = fieldTemplate;
         this.className = className;
         this.tableInfo = new DBTable();
+        this.dataTypeFinder = dataTypeFinder;
     }
 
     /**
@@ -129,13 +151,12 @@ export class DTOWriter {
         if (fieldInfo.key === 'PRI') {
             this.primaryKey = fieldInfo.field;
         }
-        const type = Text.findType(fieldInfo.type);
-        const defaultValue = Text.findDefaultValue(fieldInfo.type);
+        const dataType = this.dataTypeFinder.find(fieldInfo.type);
         let tmpField = this.fieldTemplate;
         tmpField = tmpField.replace(PATTERN_FIELD_COMMENT, fieldInfo.comment);
-        tmpField = tmpField.replace(PATTERN_FIELD_TYPE, type);
+        tmpField = tmpField.replace(PATTERN_FIELD_TYPE, dataType.label);
         tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.field);
-        tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, defaultValue);
+        tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, dataType.defaultValue);
         this.replaceFields.push(tmpField);
     }
 
@@ -144,7 +165,7 @@ export class DTOWriter {
      */
     public replace()
     {
-        const comment = this.tableInfo.comment.replace('/(\r\n|\n)/', '$1 * ');
+        const comment = this.tableInfo.comment.replace(/(\r\n|\n)/g, '$1 * ');
         this.content = this.content.replace(PATTERN_CLASS_NAME, this.className);
         this.content = this.content.replace(PATTERN_CLASS_DESCRIPTION, comment);
         this.content = this.content.replace(PATTERN_TABLE_NAME, this.tableInfo.name);
@@ -163,89 +184,5 @@ export class DTOWriter {
             this.content = this.content.replace('/\r\n|\r|\n/', eol);
         }
         writeFileSync(path + '\\' + this.className + '.php', this.content, 'utf8');
-    }
-}
-
-
-/**
- * テキスト変換まとめ
- * @author k.maeda <maeken@nexmedia.jp>
- */
-class Text
-{
-    /**
-     * スネイクケースからキャメルケースに変換する
-     * @param source スネイクケース
-     * @returns キャメルケース
-     */
-    public static camelize(source: string) : string
-    {
-        return source
-            .replace(/_/g, ' ')
-            .replace(/^(.)|\s+(.)/g, ($1) => $1.toUpperCase())
-            .replace(/\s/g, '')
-            .replace(/^[a-z]/g, (val) => val.toUpperCase());
-    }
-
-    /**
-     * DBの型からPHP型を返す
-     * @param source DB型情報
-     * @returns PHP型
-     */
-    public static findType(source: string) : string
-    {
-        if (/(int|bit)/i.test(source)) {
-            return 'int';
-        } else if (/(decimal|float|double)/i.test(source)) {
-            return 'float';
-        } else if (/datetime/i.test(source)) {
-            return 'datetime';
-        } else if (/date/i.test(source)) {
-            return 'date';
-        } else if (/time/i.test(source)) {
-            return 'time';
-        } else {
-            return 'string';
-        }
-    }
-
-    /**
-     * DBの型からPHP型を返す
-     * @param source DB型情報
-     * @returns PHP型
-     */
-    public static findHungarian(source: string)
-    {
-        if (/(int|bit|decimal|float|double)/i.test(source)) {
-            return 'n';
-        } else if (/datetime/i.test(source)) {
-            return 'dt';
-        } else if (/date/i.test(source)) {
-            return 'd';
-        } else if (/time/i.test(source)) {
-            return 't';
-        } else {
-            return 's';
-        }
-    }
-
-    /**
-     * DBの型から初期値を返す
-     * @param source DB型情報
-     * @returns 初期値
-     */
-    public static findDefaultValue(source: string) : string
-    {
-        if (/(int|bit|decimal|float|double)/i.test(source)) {
-            return '0';
-        } else if (/datetime/i.test(source)) {
-            return "'0000-00-00 00:00:00'";
-        } else if (/date/i.test(source)) {
-            return "'0000-00-00'";
-        } else if (/time/i.test(source)) {
-            return "'00:00:00'";
-        } else {
-            return "''";
-        }
     }
 }

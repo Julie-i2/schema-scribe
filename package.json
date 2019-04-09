@@ -3,6 +3,7 @@
     "displayName": "dtomaker",
     "description": "",
     "version": "0.0.1",
+    "publisher": "julie",
     "engines": {
         "vscode": "^1.31.0"
     },
@@ -13,7 +14,11 @@
         "onCommand:extension.dtomaker.all",
         "onCommand:extension.dtomaker.one"
     ],
-    "main": "./out/src/extension.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Julie-ver5/dtomaker.git"
+    },
+    "main": "./out/extension.js",
     "contributes": {
         "commands": [
             {
@@ -72,6 +77,11 @@
                                     "type": "object",
                                     "title": "生成ファイル設定",
                                     "properties": {
+                                        "folderName": {
+                                            "type": "string",
+                                            "default": "Folder Name",
+                                            "description": "プロジェクトフォルダ名"
+                                        },
                                         "outputPath": {
                                             "type": "string",
                                             "default": "${workspaceRoot}\\output",
@@ -102,6 +112,42 @@
                                             "type": "string",
                                             "default": "table_",
                                             "description": "テーブル名からマッチした先頭文字を取り外す"
+                                        },
+                                        "defaultValues": {
+                                            "type": "object",
+                                            "title": "デフォルト値一覧",
+                                            "properties": {
+                                                "int": {
+                                                    "type": "string",
+                                                    "default": "0",
+                                                    "description": "int型のデフォルト値"
+                                                },
+                                                "float": {
+                                                    "type": "string",
+                                                    "default": "0.0",
+                                                    "description": "float型のデフォルト値"
+                                                },
+                                                "string": {
+                                                    "type": "string",
+                                                    "default": "''",
+                                                    "description": "string型のデフォルト値"
+                                                },
+                                                "datetime": {
+                                                    "type": "string",
+                                                    "default": "'0000-00-00 00:00:00'",
+                                                    "description": "DateTime型のデフォルト値"
+                                                },
+                                                "date": {
+                                                    "type": "string",
+                                                    "default": "'0000-00-00'",
+                                                    "description": "Date型のデフォルト値"
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "default": "'00:00:00'",
+                                                    "description": "Time型のデフォルト値"
+                                                }
+                                            }
                                         }
                                     }
                                 },

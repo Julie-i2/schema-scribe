@@ -1,28 +1,39 @@
 import * as vscode from 'vscode';
 import { DBAccessor, DBTable, DBTableColumn } from './dbAccessor';
-import { writeFile } from 'fs';
 import { Template } from './template';
 
 /**
  * 入出力設定
  */
-class SettingIO {
+export class SettingIO {
     public outputPath: string;
     public outputReset: boolean;
     public templatePath: string;
     constructor(config: any) {
-        this.outputPath =  this.dirPath(config.outputPath || '${workspaceRoot}\\output');
+        this.outputPath =  this.dirPath(config.outputPath || '${workspaceRoot}\\output', config.folderName);
         this.outputReset = !!config.outputReset;
-        this.templatePath = this.dirPath(config.templatePath || '');
+        this.templatePath = this.dirPath(config.templatePath || '', config.folderName);
     }
 
-    private dirPath(path: string) : string {
-        path = path.replace(/\${workspaceRoot}/g, `${vscode.workspace.rootPath}`);
+    private dirPath(path: string, folderName: string) : string {
+        if (!vscode.workspace.workspaceFolders) {
+            throw Error('DTO Maker: WorkSpace上でないと使用できません');
+        }
+        let projectFolder: vscode.WorkspaceFolder = vscode.workspace.workspaceFolders[0];
+        vscode.workspace.workspaceFolders.forEach((folder) => {
+            if (folder.name === folderName) {
+                projectFolder = folder;
+            }
+        });
+        path = path.replace(/\${workspaceRoot}/g, `${projectFolder.uri.fsPath}`);
         return path;
     }
 }
 
-class SettingDataBase {
+/**
+ * DB設定
+ */
+export class SettingDataBase {
     public host: string;
     public port: number;
     public user: string;
@@ -40,12 +51,14 @@ class SettingDataBase {
 /**
  * フォーマット設定
  */
-class SettingFormat {
+export class SettingFormat {
     public className: string;
     public ltrimTableName: string;
+    public defaultValues: any;
     constructor(config: any) {
         this.className = config.className || '';
         this.ltrimTableName = config.ltrimTableName || '';
+        this.defaultValues = config.defaultValues;
     }
 }
 
@@ -56,7 +69,6 @@ export class DTOMaker {
     private dbAccessor: DBAccessor;
     private template: Template;
     private settingIO: SettingIO;
-    private settingFormat: SettingFormat;
     private tableNames: string[];
 
     /**
@@ -66,9 +78,11 @@ export class DTOMaker {
     constructor(config: any) {
         // テーブル情報の取得
         this.settingIO = new SettingIO(config.io);
-        this.settingFormat = new SettingFormat(config.format);
         this.dbAccessor = new DBAccessor(config.database);
-        this.template = new Template(this.settingIO.templatePath, this.settingFormat.className, this.settingFormat.ltrimTableName);
+        this.template = new Template(
+            this.settingIO.templatePath,
+            new SettingFormat(config.format)
+        );
         this.tableNames = config.tableList || [];
     }
 
@@ -87,7 +101,10 @@ export class DTOMaker {
         });
     }
 
-    dataGet() : Promise<void> {
+    /**
+     * 生成
+     */
+    public build() : Promise<void> {
         return this.getTableList().then((tables: string[]) => {
             tables.forEach((table: string) => {
                 let dtoWriter = this.template.createMaker(table);
@@ -111,22 +128,6 @@ export class DTOMaker {
             console.log(err);
             process.exit(1);
             vscode.window.showErrorMessage('DTO Maker: MySQL Error...');
-        });
-    }
-
-    /**
-     * ファイル出力
-     */
-    print(className: string, content: string) : Promise<void> {
-        return new Promise((resolve, reject) => {
-            writeFile(this.settingIO.outputPath + '\\' + className, content, (err: Error) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                console.log('書き込み完了');
-                resolve();
-            });
         });
     }
 }
