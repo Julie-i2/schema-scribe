@@ -23,7 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             const configuration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('DTOMaker');
             const settings: Array<any> = configuration.get('configs') || [];
-            outputChannel.appendLine(JSON.stringify(settings));
             settings.forEach(async (config) => {
                 const dtomaker = new DTOMaker(config);
                 await dtomaker.build();

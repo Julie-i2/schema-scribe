@@ -178,10 +178,10 @@
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/mysql": "^2.15.5",
-        "@types/node": "^10.12.21",
-        "tslint": "^5.12.1",
-        "typescript": "^3.3.1",
-        "vscode": "^1.1.28"
+        "@types/node": "^10.14.4",
+        "tslint": "^5.15.0",
+        "typescript": "^3.4.2",
+        "vscode": "^1.1.33"
     },
     "dependencies": {
         "mysql": "^2.16.0"

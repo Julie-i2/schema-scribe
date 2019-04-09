@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { rmdirSync, readdirSync, unlinkSync } from 'fs';
 import { DBAccessor, DBTable, DBTableColumn } from './dbAccessor';
 import { Template } from './template';
 
@@ -105,6 +106,11 @@ export class DTOMaker {
      * 生成
      */
     public build() : Promise<void> {
+        if (this.settingIO.outputReset) {
+            readdirSync(this.settingIO.outputPath).forEach(fileName => {
+                unlinkSync(this.settingIO.outputPath + '\\' + fileName);
+            });
+        }
         return this.getTableList().then((tables: string[]) => {
             tables.forEach((table: string) => {
                 let dtoWriter = this.template.createMaker(table);
