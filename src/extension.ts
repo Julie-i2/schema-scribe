@@ -24,10 +24,11 @@ export function activate(context: vscode.ExtensionContext) {
             const configuration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('DTOMaker');
             const settings: Array<any> = configuration.get('configs') || [];
             outputChannel.appendLine(JSON.stringify(settings));
-            settings.forEach(config => {
+            settings.forEach(async (config) => {
                 const dtomaker = new DTOMaker(config);
-                dtomaker.build();
+                await dtomaker.build();
             });
+            vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
         } catch (err) {
             vscode.window.showErrorMessage('【DTO Maker】error: ' + err);
             outputChannel.appendLine(err.toString());

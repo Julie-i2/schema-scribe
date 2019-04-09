@@ -64,7 +64,7 @@ export class Template
     public createMaker(tableName: string)
     {
         if (this.ltrimTableName) {
-            const ltrimRegex = new RegExp('/^' + this.ltrimTableName + '/');
+            const ltrimRegex = new RegExp('^' + this.ltrimTableName);
             tableName = tableName.replace(ltrimRegex, '');
         }
         tableName = this.camelize(tableName);

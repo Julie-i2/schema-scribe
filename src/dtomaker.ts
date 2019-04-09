@@ -123,7 +123,6 @@ export class DTOMaker {
                     }
                 );
             });
-            vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
         }).catch((err: Error) => {
             console.log(err);
             process.exit(1);
