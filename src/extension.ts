@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DTOMaker } from './dtomaker';
+import { ConfigData } from './ConfigData';
 
 /**
  * VS Code起動時に処理を登録する
@@ -21,15 +22,12 @@ export function activate(context: vscode.ExtensionContext) {
     let disposableAll = vscode.commands.registerCommand('extension.dtomaker.all', () => {
         const outputChannel = vscode.window.createOutputChannel('DTO Maker');
         try {
-            const configuration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('DTOMaker');
-            const settings: Array<any> = configuration.get('configs') || [];
-            settings.forEach(async (config) => {
-                const dtomaker = new DTOMaker(config);
-                await dtomaker.build();
+            ConfigData.read().forEach((config) => {
+                DTOMaker.build(config);
             });
             vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
         } catch (err) {
-            vscode.window.showErrorMessage('【DTO Maker】error: ' + err);
+            vscode.window.showErrorMessage('【DTO Maker】' + err);
             outputChannel.appendLine(err.toString());
         }
     });

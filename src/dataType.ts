@@ -1,4 +1,3 @@
-
 /** データ型 */
 enum DataType {
     INT = 1,
