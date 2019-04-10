@@ -53,11 +53,11 @@ export class DTOMaker {
             const dbTable: DBTable = await dbAccessor.getTableInfo(table);
             const dtoWriter = template.createMaker(dbTable);
             const tableColumns: DBTableColumn[] = await dbAccessor.getTableColumns(table);
-            tableColumns.forEach((tableColumn: DBTableColumn) => {
-                dtoWriter.addField(tableColumn);
-                dtoWriter.replace();
-                dtoWriter.output(config.io.outputPath);
+            tableColumns.forEach((dbTableColumn: DBTableColumn) => {
+                dtoWriter.addField(dbTableColumn);
             });
+            dtoWriter.replace();
+            dtoWriter.output(config.io.outputPath);
         });
     }
 }
@@ -78,9 +78,7 @@ class Template
      * コンストラクタ
      * @param config 設定データ
      */
-    public constructor(config: ConfigData)
-    {
-        console.log(config.io.templatePath);
+    public constructor(config: ConfigData) {
         this.template = fs.readFileSync(config.io.templatePath, 'utf8');
         this.classNameFormat = config.format.className;
         this.ltrimTableName = config.format.ltrimTableName;
@@ -99,8 +97,7 @@ class Template
      * @param {DBTable} dbTable テーブル名
      * @returns DTOWriter
      */
-    public createMaker(dbTable: DBTable)
-    {
+    public createMaker(dbTable: DBTable) {
         return new DTOWriter(this.template, this.fieldTemplate, this.createClassName(dbTable.name), dbTable, this.dataTypeFinder);
     }
 
@@ -108,8 +105,7 @@ class Template
      * テーブル名からクラス名を生成
      * @param tableName テーブル名
      */
-    private createClassName(tableName: string): string
-    {
+    private createClassName(tableName: string): string {
         if (this.ltrimTableName) {
             const ltrimRegex = new RegExp('^' + this.ltrimTableName);
             tableName = tableName.replace(ltrimRegex, '');
@@ -127,8 +123,7 @@ class Template
      * @param source スネイクケース
      * @returns キャメルケース
      */
-    private camelize(source: string): string
-    {
+    private camelize(source: string): string {
         return source
             .replace(/_/g, ' ')
             .replace(/^(.)|\s+(.)/g, ($1) => $1.toUpperCase())
@@ -163,8 +158,7 @@ class DTOWriter {
      * @param fieldTemplate フィールドリストテンプレート
      * @param className テーブル名
      */
-    public constructor(content: string, fieldTemplate: string, className: string, tableInfo: DBTable, dataTypeFinder: DataTypeFinder)
-    {
+    public constructor(content: string, fieldTemplate: string, className: string, tableInfo: DBTable, dataTypeFinder: DataTypeFinder) {
         this.content = content;
         this.fieldTemplate = fieldTemplate;
         this.className = className;
@@ -176,8 +170,7 @@ class DTOWriter {
      * フィールド情報追加
      * @param array $aFieldInfo フィールド情報配列
      */
-    public addField(fieldInfo: DBTableColumn)
-    {
+    public addField(fieldInfo: DBTableColumn) {
         if (fieldInfo.key === 'PRI') {
             this.primaryKey = fieldInfo.field;
         }
@@ -193,8 +186,7 @@ class DTOWriter {
     /**
      * 置き換え
      */
-    public replace()
-    {
+    public replace() {
         const comment = this.tableInfo.comment.replace(/(\r\n|\n)/g, '$1 * ');
         this.content = this.content.replace(PATTERN_CLASS_NAME, this.className);
         this.content = this.content.replace(PATTERN_CLASS_DESCRIPTION, comment);
@@ -208,8 +200,7 @@ class DTOWriter {
      * DTOファイル出力
      * @param string $sEOL 改行コード指定
      */
-    public output(path: string, eol: string | null = null)
-    {
+    public output(path: string, eol: string | null = null) {
         if (eol && ["\r\n", "\r", "\n"].indexOf(eol) > -1) {
             this.content = this.content.replace('/\r\n|\r|\n/', eol);
         }

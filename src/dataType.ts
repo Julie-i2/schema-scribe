@@ -94,8 +94,7 @@ export class DataTypeFinder
      * コンストラクタ
      * @param defaultValues 初期値リスト
      */
-    public constructor(defaultValues: Array<any>)
-    {
+    public constructor(defaultValues: Array<any>) {
         this.defaultValues = new DefaultValues(defaultValues);
     }
 
@@ -103,8 +102,7 @@ export class DataTypeFinder
      * ソースから型を割り出し結果を返す
      * @param source ソース
      */
-    public find(source: string): DataTypeInformation
-    {
+    public find(source: string): DataTypeInformation {
         const dataType = this.findType(source);
         return new DataTypeInformation(
             DATA_TYPE_LIST[dataType],
@@ -118,8 +116,7 @@ export class DataTypeFinder
      * @param source DB型情報
      * @returns PHP型
      */
-    private findType(source: string) : DataType
-    {
+    private findType(source: string) : DataType {
         if (/(int|bit)/i.test(source)) {
             return DataType.INT;
         } else if (/(decimal|float|double)/i.test(source)) {

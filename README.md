@@ -1,6 +1,6 @@
 # DTO Maker
 
-これはあなたの拡張機能 "dtomaker"のためのREADMEです。簡単な説明を書き終えたら、次のセクションを含めることをお勧めします。
+`DTO Maker`はデータベースのテーブル情報を参照し、DTOクラスを自動で生成する拡張機能です。フォルダごとに設定でき、複数のデータベースにも対応できます。
 
 <br />
 
@@ -8,7 +8,6 @@
 
 実際のエクステンションのスクリーンショットなど、エクステンションの特定の機能について説明してください。イメージパスはこのREADMEファイルを基準にしています。
 
-![feature X](images/screenshot.png)
 
 > ヒント：多くの一般的な拡張機能はアニメーションを利用します。これはあなたの拡張機能を披露するための優れた方法です！従うことが簡単で、焦点を絞った短いアニメーションをお勧めします。
 
@@ -16,67 +15,86 @@
 
 ## 必要条件
 
-要件や依存関係がある場合は、それらを説明し、それらをインストールおよび構成する方法を説明したセクションを追加してください。
+1. プロジェクトフォルダ直下に`.dtomaker`フォルダを用意します。
+2. `.dtomaker`フォルダ内に`config.json`と`テンプレート用テキストファイル`を用意します。
 
 <br />
 
 ## 拡張設定
 
-あなたの拡張がcontrib.configuration拡張ポイントを通して任意のVS Code設定を追加するかどうか含めてください。
+拡張機能を使用するための設定について説明します。<br />
+参照するデータベースの設定やDTOクラスのフォーマット、出力先等を設定することが可能です。
+
+> **注意**：この設定はVS Codeの`setting.json`とは異なります。
 
 For example:
-
 ``` json
-"DTOMaker.configs": [
-    {
-        // データベースのホスト
-        "database.host": "192.168.1.100",
-        // データベースのポート
-        "database.port": 3306,
-        // データベースのユーザー名
-        "database.user": "root",
-        // データベースのパスワード
-        "database.password": "pass",
-        // データベース名
-        "database.databse": "system_name",
-
-        // 出力先のパス [default "${workspaceRoot}\\output"]
-        "io.outputPath": "${workspaceRoot}\\classes\\IO\\DataBase\\DTO",
-        // DTO生成前に出力先フォルダの中身をすべて削除する [default true]
-        "io.outputReset": true,
-        // テンプレートファイルのパス [default "${workspaceRoot}\\template.txt"]
-        "io.templatePath": "${workspaceRoot}\\.vscode\\dto-template.txt",
-
-        // DTOクラス名のPrefix・Suffix [default "${className}DTO"]
-        "format.className": "${className}DTO",
-        // テーブル名からマッチした先頭文字を取り外す [default "table_"]
-        "format.ltrimTableName": "table_",
-    }
-]
+{
+    "DTOMaker.configs": [
+        {
+            "database": {
+                // データベースのホスト
+                "host": "192.168.1.100",
+                // データベースのポート
+                "port": 3306,
+                // データベースのユーザー名
+                "user": "root",
+                // データベースのパスワード
+                "password": "pass",
+                // データベース名
+                "databse": "system_name",
+            },
+            "io": {
+                // 出力先のパス
+                "outputPath": "${workspaceRoot}\\classes\\IO\\DataBase\\DTO",
+                // DTO生成前に出力先フォルダの中身をすべて削除する [default true]
+                "outputReset": true,
+                // テンプレートファイルのパス
+                "templatePath": "${workspaceRoot}\\.vscode\\dto-template.txt",
+            },
+            "format": {
+                // DTOクラス名のPrefix・Suffix
+                "className": "${className}DTO",
+                // テーブル名からマッチした先頭文字を取り外す
+                "format.ltrimTableName": "table_",
+                // データ型ごとの初期値を指定する
+                "defaultValues": {
+                    "datetime": "DEFAULT_DATETIME",
+                    "date": "DEFAULT_DATE",
+                    "time": "DEFAULT_TIME"
+                },
+            },
+            // 対象にするテーブルリスト(未指定時は全テーブル)
+            "tableList": [
+                "table1",
+                "table2",
+            ],
+        }, ...
+    ]
+}
 ```
 
 ### 置き換え文字
 
-出力先フォルダやテンプレートファイルの場所を指定する際の置き換え文字。
+ファイル・フォルダ指定や名称指定する際の置き換え文字。
 
-|置き換え文字|説明|
-|---|---|
-|`${workspaceRoot}`|ワークスペースルートフォルダ|
-|`${workspaceFolder}`|VS Codeで開かれたフォルダのパス|
-|`${className}`|DTOクラス・ファイル名|
+|置き換え文字|利用可能設定項目|説明|
+|---|---|---|
+|`${workspaceRoot}`|io.outputPath \| io.templatePath|ワークスペースルートフォルダ|
+|`${className}`|format.className|DTOクラス・ファイル名|
 
 <br />
 
 ## 既知の問題点
 
-既知の問題を指摘することで、内線番号に対して重複する問題を開くユーザーを制限することができます。
+問題を見つけたら報告してくれると助かります。
 
 <br />
 
 ## リリースノート
 
-エクステンションをアップデートするにつれて、ユーザはリリースノートに感謝します。
+bata版リリース
 
-### 1.0.0
+### 0.0.1
 
 初期リリース

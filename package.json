@@ -19,6 +19,7 @@
         "url": "https://github.com/Julie-ver5/dtomaker.git"
     },
     "main": "./out/extension.js",
+    "icon": "images/icon.png",
     "contributes": {
         "commands": [
             {

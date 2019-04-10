@@ -2,6 +2,19 @@ import * as vscode from 'vscode';
 import { readFileSync } from 'fs';
 
 /**
+ * 設定データ読み込み結果
+ */
+class ConfigReadResult
+{
+    public configs: ConfigData[];
+    public errorMessages: string[];
+    public constructor(configs: ConfigData[], errorMessages: string[]) {
+        this.configs = configs;
+        this.errorMessages = errorMessages;
+    }
+}
+
+/**
  * 設定データ
  */
 export class ConfigData
@@ -10,39 +23,67 @@ export class ConfigData
     public io: SettingIO;
     public format: SettingFormat;
     public tableList: string[];
-    public constructor(config: any, workspaceRoot: string) {
+    public workspaceName: string;
+    public constructor(config: any, workspaceFolder: vscode.WorkspaceFolder) {
         config = config || {};
         this.database = new SettingDataBase(config.database);
-        this.io = new SettingIO(config.io, workspaceRoot);
+        this.io = new SettingIO(config.io, workspaceFolder.uri.fsPath);
         this.format = new SettingFormat(config.format);
         this.tableList = config.tableList || [];
+        this.workspaceName = workspaceFolder.name;
+    }
+
+    /**
+     * クイックピックアイテムに変換
+     */
+    public toQuickPickItem(): vscode.QuickPickItem {
+        return {
+            label: '$(database)  %s@%s'.replace(/%s/, this.database.host).replace(/%s/, this.database.database),
+            description: this.workspaceName,
+            alwaysShow: true,
+        };
     }
 
     /**
      * 設定ファイル読み込み
      */
-    public static read(): ConfigData[]
-    {
+    public static read(): ConfigReadResult {
         if (!vscode.workspace.workspaceFolders) {
             throw Error('WorkSpace上でないと使用できません');
         }
         let configs: ConfigData[] = [];
-        const outputChannel = vscode.window.createOutputChannel('DTO Maker');
+        let errMess: string[] = [];
         vscode.workspace.workspaceFolders.forEach((folder) => {
             try {
                 const configFilePath = folder.uri.fsPath + '\\.dtomaker\\config.json';
                 const configText = readFileSync(configFilePath, 'utf8');
                 const configList = JSON.parse(configText)['DTOMaker.configs'] || [];
                 configList.forEach((configJSON: any) => {
-                    const configData = new ConfigData(configJSON, folder.uri.fsPath);
+                    const configData = new ConfigData(configJSON, folder);
                     configs.push(configData);
                 });
             } catch (err) {
-                outputChannel.appendLine(err.toString());
+                // ファイルの存在判定がないため、例外をcatch
+                errMess.push(err.toString());
             }
         });
-        console.log(configs);
-        return configs;
+        return new ConfigReadResult(configs, errMess);
+    }
+
+    /**
+     * クイックピックアイテムの情報を元に設定データリストから設定データを検索する
+     * @param needle クイックピックアイテム
+     * @param hash 設定データリスト
+     */
+    public static search(needle: vscode.QuickPickItem | undefined, hash: ConfigData[]): ConfigData | null {
+        for (let i = 0; i < hash.length; i++) {
+            const targetA = JSON.stringify(needle || {});
+            const targetB = JSON.stringify(hash[i].toQuickPickItem());
+            if (targetA === targetB) {
+                return hash[i];
+            }
+        }
+        return null;
     }
 }
 
