@@ -85,6 +85,58 @@ For example:
 
 <br />
 
+## テンプレート用テキストファイルについて
+
+DTOクラスを生成するにはテンプレートファイルを用意する必要があります。<br />
+名前は何でも構いませんが、テキスト形式である必要があります。<br />
+テンプレート内の以下の文字列はシステムで自動的に置き換わります。
+
+|置換え文字|説明|
+|---|---|
+|{{table_name}}|DBテーブル名|
+|{{class_desc}}|DBテーブルコメント|
+|{{class_name}}|DTOのクラス名|
+|{{engine}}|DBエンジン名|
+|{{primary_id}}|プライマリキー指定されているフィールド名|
+|\<\<\<fields_list|フィールドプロパティ領域開始タグ|
+|\>\>\>fields_list|フィールドプロパティ領域終了タグ|
+|{{field_comment}}|フィールドのコメント。`フィールドプロパティ領域内に記載`|
+|{{field_type}}|フィールドの型。`フィールドプロパティ領域内に記載`|
+|{{field_name}}|フィールド名。`フィールドプロパティ領域内に記載`|
+|{{field_default_value}}|フィールドのデフォルト値。`フィールドプロパティ領域内に記載`|
+
+For example:
+``` php
+<?php
+namespace IO\DataBase\DTO;
+use Standard\IO\Data\DTO\AbstractParameter;
+
+/**
+ * データベースDTO
+ * Table: {{table_name}}
+ * {{class_desc}}
+ * @author DTO Maker
+ */
+class {{class_name}} extends AbstractParameter
+{
+    /** テーブル名 */
+    const TABLE_NAME = '{{table_name}}';
+
+    /** エンジン */
+    const ENGINE = '{{engine}}';
+
+    /** プライマリID */
+    const PRIMARY_KEY = '{{primary_id}}';
+
+<<<fields_list
+    /** {{field_comment}} @var {{field_type}} */
+    public ${{field_name}} = {{field_default_value}};
+>>>fields_list
+}
+```
+
+<br />
+
 ## 既知の問題点
 
 問題を見つけたら報告してくれると助かります。
