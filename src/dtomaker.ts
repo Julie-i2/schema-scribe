@@ -34,30 +34,37 @@ export class DTOMaker {
      * 生成
      * @param config 設定データ
      */
-    public static async build(config: ConfigData) {
-        const dbAccessor: DBAccessor = new DBAccessor(config.database);
-        const template: Template = new Template(config);
+    public static build(config: ConfigData): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const dbAccessor: DBAccessor = new DBAccessor(config.database);
+                const template: Template = new Template(config);
 
-        // すでにあるファイルをすべて削除する
-        if (config.io.outputReset) {
-            fs.readdirSync(config.io.outputPath).forEach(fileName => {
-                fs.unlinkSync(config.io.outputPath + '\\' + fileName);
-            });
-        }
+                // すでにあるファイルをすべて削除する
+                if (config.io.outputReset) {
+                    fs.readdirSync(config.io.outputPath).forEach(fileName => {
+                        fs.unlinkSync(config.io.outputPath + '\\' + fileName);
+                    });
+                }
 
-        // テーブル名リストを取得
-        const tableNames = (config.tableList.length > 0) ? config.tableList : await dbAccessor.getTables();
+                // テーブル名リストを取得
+                const tableNames = (config.tableList.length > 0) ? config.tableList : await dbAccessor.getTables();
 
-        // テーブル詳細取得＆テンプレート置き換え＆出力
-        tableNames.forEach(async (table: string) => {
-            const dbTable: DBTable = await dbAccessor.getTableInfo(table);
-            const dtoWriter = template.createMaker(dbTable);
-            const tableColumns: DBTableColumn[] = await dbAccessor.getTableColumns(table);
-            tableColumns.forEach((dbTableColumn: DBTableColumn) => {
-                dtoWriter.addField(dbTableColumn);
-            });
-            dtoWriter.replace();
-            dtoWriter.output(config.io.outputPath);
+                // テーブル詳細取得＆テンプレート置き換え＆出力
+                tableNames.forEach(async (table: string) => {
+                    const dbTable: DBTable = await dbAccessor.getTableInfo(table);
+                    const dtoWriter = template.createMaker(dbTable);
+                    const tableColumns: DBTableColumn[] = await dbAccessor.getTableColumns(dbTable.name);
+                    tableColumns.forEach((dbTableColumn: DBTableColumn) => {
+                        dtoWriter.addField(dbTableColumn);
+                    });
+                    dtoWriter.replace();
+                    dtoWriter.output(config.io.outputPath);
+                });
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 }

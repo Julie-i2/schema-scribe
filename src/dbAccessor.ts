@@ -45,7 +45,7 @@ export class DBAccessor {
      */
     getTableInfo(tableName: string): Promise<DBTable> {
         return new Promise((resolve, reject) => {
-            const sql = `SHOW TABLE STATUS LIKE '${tableName}';`;
+            const sql = this.con.format('SHOW TABLE STATUS LIKE ?;', [tableName]);
             this.con.query(sql, (err: MysqlError | null, results: any[]) => {
                 if (err) {
                     reject(err);

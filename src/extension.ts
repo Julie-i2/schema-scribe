@@ -20,19 +20,22 @@ export function activate(context: vscode.ExtensionContext) {
     /**
      * 設定されたDTOをすべて作成する
      */
-    let disposableAll = vscode.commands.registerCommand('extension.dtomaker.all', () => {
+    let disposableAll = vscode.commands.registerCommand('extension.dtomaker.all', async () => {
         try {
             const readResult = ConfigData.read();
+            if (readResult.configs.length === 0) {
+                throw Error('設定ファイルがひとつも登録されていない');
+            }
             readResult.errorMessages.forEach((errorMessage) => {
                 outputChannel.appendLine(errorMessage);
             });
-            readResult.configs.forEach((config) => {
-                DTOMaker.build(config);
-            });
+            for (let i = 0; i < readResult.configs.length; i++) {
+                await DTOMaker.build(readResult.configs[i]);
+            }
             vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
         } catch (err) {
             outputChannel.appendLine(err.toString());
-            vscode.window.showErrorMessage('【DTO Maker】' + err);
+            vscode.window.showErrorMessage('【DTO Maker】' + err.toString());
         }
     });
 
@@ -46,16 +49,24 @@ export function activate(context: vscode.ExtensionContext) {
             readResult.configs.forEach((config) => {
                 pickItems.push(config.toQuickPickItem());
             });
-            vscode.window.showQuickPick(pickItems).then((choice: vscode.QuickPickItem | undefined) => {
-                const config = ConfigData.search(choice, readResult.configs);
-                if (config) {
-                    DTOMaker.build(config);
-                    vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
+            vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
+                try {
+                    const config = ConfigData.search(choice, readResult.configs);
+                    if (config) {
+                        await DTOMaker.build(config);
+                        vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
+                    }
+                } catch (err) {
+                    if (choice) {
+                        outputChannel.append('[' + choice.description + '] ');
+                    }
+                    outputChannel.appendLine(err.toString());
+                    vscode.window.showErrorMessage('【DTO Maker】' + err.toString());
                 }
             });
         } catch (err) {
-            vscode.window.showErrorMessage('【DTO Maker】' + err);
             outputChannel.appendLine(err.toString());
+            vscode.window.showErrorMessage('【DTO Maker】' + err.toString());
         }
     });
 
