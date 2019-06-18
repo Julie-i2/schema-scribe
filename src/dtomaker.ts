@@ -117,6 +117,7 @@ class Template
             const ltrimRegex = new RegExp('^' + this.ltrimTableName);
             tableName = tableName.replace(ltrimRegex, '');
         }
+        tableName = tableName.replace(/\.|\"|\/|\\|\[|\]|\:|\;|\||\=|\,/g, ' ');
         tableName = this.camelize(tableName);
         const classNameRegex = /\${className}/;
         if (this.classNameFormat && classNameRegex.test(this.classNameFormat)) {
