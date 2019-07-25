@@ -22,6 +22,8 @@ const PATTERN_FIELD_COMMENT = /\{\{field_comment\}\}/g;
 const PATTERN_FIELD_TYPE = /\{\{field_type\}\}/g;
 /** 正規表現パターン(フィールド)：フィールド名 */
 const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g;
+/** 正規表現パターン(フィールド)：Null許容 */
+const PATTERN_FIELD_NULLABLE = /\{\{field_nullable\}\}/g;
 /** 正規表現パターン(フィールド)：フィールドの既定値 */
 const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/g;
 
@@ -182,11 +184,12 @@ class DTOWriter {
         if (fieldInfo.key === 'PRI') {
             this.primaryKey = fieldInfo.field;
         }
-        const dataType = this.dataTypeFinder.find(fieldInfo.type);
+        const dataType = this.dataTypeFinder.find(fieldInfo);
         let tmpField = this.fieldTemplate;
         tmpField = tmpField.replace(PATTERN_FIELD_COMMENT, fieldInfo.comment);
         tmpField = tmpField.replace(PATTERN_FIELD_TYPE, dataType.label);
         tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.field);
+        tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.null);
         tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, dataType.defaultValue);
         this.replaceFields.push(tmpField);
     }

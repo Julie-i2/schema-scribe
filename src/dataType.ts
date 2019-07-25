@@ -1,3 +1,5 @@
+import { DBTableColumn } from './dbAccessor';
+
 /** データ型 */
 enum DataType {
     INT = 1,
@@ -102,13 +104,47 @@ export class DataTypeFinder
      * ソースから型を割り出し結果を返す
      * @param source ソース
      */
-    public find(source: string): DataTypeInformation {
-        const dataType = this.findType(source);
+    public find(fieldInfo: DBTableColumn): DataTypeInformation {
+        const dataType = this.findType(fieldInfo.type);
         return new DataTypeInformation(
-            DATA_TYPE_LIST[dataType],
+            this.createDataTypeLabel(fieldInfo, dataType),
             DEFAULT_HUNGARIAN_LIST[dataType],
-            this.defaultValues.get(dataType)
+            this.createDefaultValue(fieldInfo, dataType),
         );
+    }
+
+    /**
+     * データ種別ラベルを求めて返す
+     * @param fieldInfo DB Field情報
+     * @param dataType データ種別
+     * @returns データ種別ラベル
+     */
+    private createDataTypeLabel(fieldInfo: DBTableColumn, dataType: DataType) : string
+    {
+        const dataTypeLabel = DATA_TYPE_LIST[dataType];
+        return (fieldInfo.null === 'YES') ? dataTypeLabel + '|null' : dataTypeLabel;
+    }
+
+    /**
+     * 初期値を求めて返す
+     * @param fieldInfo DB Field情報
+     * @param dataType データ種別
+     * @returns 初期値
+     */
+    private createDefaultValue(fieldInfo: DBTableColumn, dataType: DataType) : string
+    {
+        const value = fieldInfo.default;
+        if (value === null) {
+            return (fieldInfo.null === 'YES') ? 'null' : this.defaultValues.get(dataType);
+        } else {
+            switch (dataType) {
+                case DataType.INT:
+                case DataType.FLOAT:
+                    return value;
+                default:
+                    return `'${value}'`;
+            }
+        }
     }
 
     /**
