@@ -2,7 +2,7 @@
     "name": "dtomaker",
     "displayName": "dtomaker",
     "description": "",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "julie",
     "engines": {
         "vscode": "^1.31.0"
