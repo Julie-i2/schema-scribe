@@ -65,7 +65,7 @@ export class DTOMaker {
                         dtoWriter.addField(dbTableColumn);
                     });
                     dtoWriter.replace();
-                    dtoWriter.output(config.io.outputPath);
+                    dtoWriter.output(config.io.outputPath, config.format.fileExtension);
                 });
                 resolve();
             } catch (err) {
@@ -225,10 +225,10 @@ class DTOWriter {
      * DTOファイル出力
      * @param string $sEOL 改行コード指定
      */
-    public output(path: string, eol: string | null = null) {
+    public output(path: string, fileExtension: string, eol: string | null = null) {
         if (eol && ["\r\n", "\r", "\n"].indexOf(eol) > -1) {
             this.content = this.content.replace('/\r\n|\r|\n/', eol);
         }
-        fs.writeFileSync(`${path}\\${this.className}`, this.content, 'utf8');
+        fs.writeFileSync(`${path}\\${this.className}.${fileExtension}`, this.content, 'utf8');
     }
 }

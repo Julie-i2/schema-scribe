@@ -25,12 +25,12 @@ export class SQLBuilder {
 
                 // テーブル詳細取得＆テンプレート置き換え＆出力
                 const generator = new Generator();
-                tableNames.forEach(async (table: string) => {
+                for (let table of tableNames) {
                     const tableColumns: DBTableColumn[] = await dbAccessor.getTableColumns(table);
                     generator.addTable(table, tableColumns);
-                });
+                }
                 const output = generator.getQueries();
-                fs.writeFileSync(`${config.io.outputPath}\\LDB.sqlite`, output, 'utf8');
+                fs.writeFileSync(`${config.io.outputPath}\\${config.format.className}.sqlite`, output, 'utf8');
                 resolve();
             } catch (err) {
                 reject(err);
@@ -40,7 +40,7 @@ export class SQLBuilder {
 }
 
 class Generator {
-    public tables: Array<TabelGenerator> = [];
+    private tables: Array<TabelGenerator> = [];
 
     public constructor() {
 
@@ -52,7 +52,12 @@ class Generator {
 
     public getQueries(): string
     {
-        return this.tables.map(gen => gen.getQuery()).join('');
+        const queries: Array<string> = [];
+        this.tables.forEach((gen: TabelGenerator) => {
+            const tableQuery = gen.getQuery();
+            queries.push(tableQuery);
+        });
+        return queries.join('\n');
     }
 }
 
@@ -64,16 +69,17 @@ class TabelGenerator {
         tableColumns.forEach((tableColumn: DBTableColumn) => {
             const type = TypeConverter.convertType(tableColumn.type);
             const extra = TypeConverter.convertExtra(tableColumn.extra);
-            fields.push(`${tableColumn.field} ${type}${extra}`);
+            fields.push(`  ${tableColumn.field} ${type}${extra}`);
         });
         this.queries.push(`CREATE TABLE ${tableName} (`);
-        this.queries.push(fields.join(','));
+        this.queries.push(fields.join(',\n'));
         this.queries.push(');');
     }
 
     public getQuery(): string
     {
-        return this.queries.join('');
+        const query = this.queries.join('\n');
+        return query;
     }
 }
 
@@ -99,7 +105,7 @@ class TypeConverter {
 
     public static convertExtra(extra: string): string {
         let extraQuery = '';
-        if (extra == 'auto_increment') {
+        if (extra === 'auto_increment') {
             extraQuery = ' primary key autoincrement';
         }
         return extraQuery;

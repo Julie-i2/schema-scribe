@@ -128,12 +128,16 @@ export class SettingIO {
  * フォーマット設定
  */
 export class SettingFormat {
+    public type: string;
     public className: string;
+    public fileExtension: string;
     public ltrimTableName: string;
     public defaultValues: any;
     constructor(config: any) {
         config = config || {};
+        this.type = config.type || '';
         this.className = config.className || '';
+        this.fileExtension = config.fileExtension || '';
         this.ltrimTableName = config.ltrimTableName || '';
         this.defaultValues = config.defaultValues;
     }

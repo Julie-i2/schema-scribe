@@ -31,7 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
                 outputChannel.appendLine(errorMessage);
             });
             for (let i = 0; i < readResult.configs.length; i++) {
-                await DTOMaker.build(readResult.configs[i]);
+                if (readResult.configs[i].format.type === 'dto') {
+                    await DTOMaker.build(readResult.configs[i]);
+                }
             }
             vscode.window.showInformationMessage('DTO Maker: Success! Created DTO');
         } catch (err) {
@@ -48,7 +50,9 @@ export function activate(context: vscode.ExtensionContext) {
             const pickItems : vscode.QuickPickItem[] = [];
             const readResult = ConfigData.read();
             readResult.configs.forEach((config) => {
-                pickItems.push(config.toQuickPickItem());
+                if (config.format.type === 'dto') {
+                    pickItems.push(config.toQuickPickItem());
+                }
             });
             vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
                 try {
@@ -79,7 +83,9 @@ export function activate(context: vscode.ExtensionContext) {
             const pickItems : vscode.QuickPickItem[] = [];
             const readResult = ConfigData.read();
             readResult.configs.forEach((config) => {
-                pickItems.push(config.toQuickPickItem());
+                if (config.format.type === 'sqlite') {
+                    pickItems.push(config.toQuickPickItem());
+                }
             });
             vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
                 try {
