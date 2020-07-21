@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DTOMaker } from './dtomaker';
+import { SQLBuilder } from './sqlBuilder';
 import { ConfigData } from './ConfigData';
 
 /**
@@ -70,9 +71,41 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    /**
+     * 設定されたDTOを1案件分だけ作る
+     */
+    let generateSQLiteSchemaOne = vscode.commands.registerCommand('extension.dtomaker.sqliteone', () => {
+        try {
+            const pickItems : vscode.QuickPickItem[] = [];
+            const readResult = ConfigData.read();
+            readResult.configs.forEach((config) => {
+                pickItems.push(config.toQuickPickItem());
+            });
+            vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
+                try {
+                    const config = ConfigData.search(choice, readResult.configs);
+                    if (config) {
+                        await SQLBuilder.build(config);
+                        vscode.window.showInformationMessage('SQLite Builder: Success! Created SQL');
+                    }
+                } catch (err) {
+                    if (choice) {
+                        outputChannel.append('[' + choice.description + '] ');
+                    }
+                    outputChannel.appendLine(err.toString());
+                    vscode.window.showErrorMessage('【DTO Maker】' + err.toString());
+                }
+            });
+        } catch (err) {
+            outputChannel.appendLine(err.toString());
+            vscode.window.showErrorMessage('【DTO Maker】' + err.toString());
+        }
+    });
+
     // 拡張機能解放時に自動的にdisposeする
     context.subscriptions.push(disposableAll);
     context.subscriptions.push(disposableOne);
+    context.subscriptions.push(generateSQLiteSchemaOne);
 }
 
 // this method is called when your extension is deactivated

@@ -1,4 +1,5 @@
 {
     "extension.dtomaker.all.title": "Make all DTO",
-    "extension.dtomaker.one.title": "Make DTO"
+    "extension.dtomaker.one.title": "Make DTO",
+    "extension.dtomaker.sqliteone.title": "Make SQLite"
 }

@@ -12,7 +12,8 @@
     ],
     "activationEvents": [
         "onCommand:extension.dtomaker.all",
-        "onCommand:extension.dtomaker.one"
+        "onCommand:extension.dtomaker.one",
+        "onCommand:extension.dtomaker.sqliteone"
     ],
     "repository": {
         "type": "git",
@@ -30,6 +31,11 @@
             {
                 "command": "extension.dtomaker.one",
                 "title": "%extension.dtomaker.one.title%",
+                "category": "DTO Maker"
+            },
+            {
+                "command": "extension.dtomaker.sqliteone",
+                "title": "%extension.dtomaker.sqliteone.title%",
                 "category": "DTO Maker"
             }
         ],

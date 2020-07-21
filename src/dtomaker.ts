@@ -215,7 +215,8 @@ class DTOWriter {
         this.content = this.content.replace(PATTERN_ENGINE, this.tableInfo.engine);
         this.content = this.content.replace(PATTERN_PRIMARY_ID, this.primaryKey);
         this.replaceFields.forEach((fields, index) => {
-            const regExp = new RegExp(`FIELD_LIST_NO_${++index}`);
+            const number = index + 1;
+            const regExp = new RegExp(`FIELD_LIST_NO_${number}`);
             this.content = this.content.replace(regExp, fields.join(''));
         });
     }
@@ -228,6 +229,6 @@ class DTOWriter {
         if (eol && ["\r\n", "\r", "\n"].indexOf(eol) > -1) {
             this.content = this.content.replace('/\r\n|\r|\n/', eol);
         }
-        fs.writeFileSync(path + '\\' + this.className + '.php', this.content, 'utf8');
+        fs.writeFileSync(`${path}\\${this.className}`, this.content, 'utf8');
     }
 }

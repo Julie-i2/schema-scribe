@@ -19,6 +19,7 @@ class ConfigReadResult
  */
 export class ConfigData
 {
+    public label: string;
     public database: SettingDataBase;
     public io: SettingIO;
     public format: SettingFormat;
@@ -26,6 +27,7 @@ export class ConfigData
     public workspaceName: string;
     public constructor(config: any, workspaceFolder: vscode.WorkspaceFolder) {
         config = config || {};
+        this.label = config.label || '';
         this.database = new SettingDataBase(config.database);
         this.io = new SettingIO(config.io, workspaceFolder.uri.fsPath);
         this.format = new SettingFormat(config.format);
@@ -37,8 +39,9 @@ export class ConfigData
      * クイックピックアイテムに変換
      */
     public toQuickPickItem(): vscode.QuickPickItem {
+        const databaseName = '%s@%s'.replace(/%s/, this.database.host).replace(/%s/, this.database.database);
         return {
-            label: '$(database)  %s@%s'.replace(/%s/, this.database.host).replace(/%s/, this.database.database),
+            label: `$(database)  ${this.label} ${databaseName}`,
             description: this.workspaceName,
             alwaysShow: true,
         };
