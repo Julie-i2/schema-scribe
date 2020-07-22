@@ -53,10 +53,12 @@ class Generator {
     public getQueries(): string
     {
         const queries: Array<string> = [];
+        queries.push('BEGIN TRANSACTION;');
         this.tables.forEach((gen: TabelGenerator) => {
             const tableQuery = gen.getQuery();
             queries.push(tableQuery);
         });
+        queries.push('COMMIT;');
         return queries.join('\n');
     }
 }
@@ -69,17 +71,16 @@ class TabelGenerator {
         tableColumns.forEach((tableColumn: DBTableColumn) => {
             const type = TypeConverter.convertType(tableColumn.type);
             const extra = TypeConverter.convertExtra(tableColumn.extra);
-            fields.push(`  ${tableColumn.field} ${type}${extra}`);
+            fields.push(`  "${tableColumn.field}" ${type}${extra}`);
         });
-        this.queries.push(`CREATE TABLE ${tableName} (`);
+        this.queries.push(`CREATE TABLE IF NOT EXISTS "${tableName}" (`);
         this.queries.push(fields.join(',\n'));
         this.queries.push(');');
     }
 
     public getQuery(): string
     {
-        const query = this.queries.join('\n');
-        return query;
+        return this.queries.join('\n');
     }
 }
 
