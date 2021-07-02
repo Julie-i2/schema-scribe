@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { ConfigData } from './ConfigData';
-import { DataTypeFinder } from './dataType';
+import { DataTypeFinder, DataTypeFinderForPHP, DataTypeFinderForTS } from './dataType';
 import { DBAccessor, DBTable, DBTableColumn } from './dbAccessor';
 
 
@@ -56,17 +56,31 @@ export class DTOMaker {
                 // テーブル名リストを取得
                 const tableNames = (config.tableList.length > 0) ? config.tableList : await dbAccessor.getTables();
 
-                // テーブル詳細取得＆テンプレート置き換え＆出力
-                tableNames.forEach(async (table: string) => {
-                    const dbTable: DBTable = await dbAccessor.getTableInfo(table);
+                // テーブル詳細取得＆テンプレート置き換え
+                const dtoWriters: Array<DTOWriter> = [];
+                for (const tableName of tableNames) {
+                    const dbTable: DBTable = await dbAccessor.getTableInfo(tableName);
                     const dtoWriter = template.createMaker(dbTable);
                     const tableColumns: DBTableColumn[] = await dbAccessor.getTableColumns(dbTable.name);
                     tableColumns.forEach((dbTableColumn: DBTableColumn) => {
                         dtoWriter.addField(dbTableColumn);
                     });
                     dtoWriter.replace();
-                    dtoWriter.output(config.io.outputPath, config.format.fileExtension);
-                });
+                    dtoWriters.push(dtoWriter);
+                }
+
+                // 出力
+                if (config.io.combine) {
+                    let content = '';
+                    for (const dtoWriter of dtoWriters) {
+                        content += dtoWriter.getContent(config.format.fileExtension);
+                    }
+                    fs.writeFileSync(`${config.io.outputPath}\\${config.io.combineFileNam}.${config.format.fileExtension}`, content, 'utf8');
+                } else {
+                    for (const dtoWriter of dtoWriters) {
+                        dtoWriter.output(config.io.outputPath, config.format.fileExtension);
+                    }
+                }
                 resolve();
             } catch (err) {
                 reject(err);
@@ -95,7 +109,11 @@ class Template
         this.template = fs.readFileSync(config.io.templatePath, 'utf8');
         this.classNameFormat = config.format.className;
         this.ltrimTableName = config.format.ltrimTableName;
-        this.dataTypeFinder = new DataTypeFinder(config.format.defaultValues);
+        if (config.format.fileExtension == 'php') {
+            this.dataTypeFinder = new DataTypeFinderForPHP(config.format.defaultValues);
+        } else {
+            this.dataTypeFinder = new DataTypeFinderForTS(config.format.defaultValues);
+        }
 
         // テンプレートからフィールドテンプレートを抜き出す
         let counter = 1;
@@ -223,12 +241,22 @@ class DTOWriter {
 
     /**
      * DTOファイル出力
-     * @param string $sEOL 改行コード指定
+     * @param string eol 改行コード指定
      */
-    public output(path: string, fileExtension: string, eol: string | null = null) {
+    public output(path: string, fileExtension: string, eol: string|null = null) {
+        const content = this.getContent(eol);
+        fs.writeFileSync(`${path}\\${this.className}.${fileExtension}`, content, 'utf8');
+    }
+
+    /**
+     * コンテンツ取得
+     * @param eol 改行コード
+     */
+    public getContent(eol: string|null = null): string
+    {
         if (eol && ["\r\n", "\r", "\n"].indexOf(eol) > -1) {
             this.content = this.content.replace('/\r\n|\r|\n/', eol);
         }
-        fs.writeFileSync(`${path}\\${this.className}.${fileExtension}`, this.content, 'utf8');
+        return this.content;
     }
 }

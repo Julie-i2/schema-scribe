@@ -58,13 +58,13 @@ export class ConfigData
         let errMess: string[] = [];
         vscode.workspace.workspaceFolders.forEach((folder) => {
             try {
-                const configFilePath = folder.uri.fsPath + '\\.dtomaker\\config.json';
+                const configFilePath = `${folder.uri.fsPath}\\.dtomaker\\config.json`;
                 const configText = readFileSync(configFilePath, 'utf8');
                 const configList = JSON.parse(configText)['DTOMaker.configs'] || [];
-                configList.forEach((configJSON: any) => {
+                for (const configJSON of configList) {
                     const configData = new ConfigData(configJSON, folder);
                     configs.push(configData);
-                });
+                }
             } catch (err) {
                 // ファイルの存在判定がないため、例外をcatch
                 errMess.push(err.toString());
@@ -76,14 +76,14 @@ export class ConfigData
     /**
      * クイックピックアイテムの情報を元に設定データリストから設定データを検索する
      * @param needle クイックピックアイテム
-     * @param hash 設定データリスト
+     * @param hashList 設定データリスト
      */
-    public static search(needle: vscode.QuickPickItem | undefined, hash: ConfigData[]): ConfigData | null {
-        for (let i = 0; i < hash.length; i++) {
-            const targetA = JSON.stringify(needle || {});
-            const targetB = JSON.stringify(hash[i].toQuickPickItem());
+    public static search(needle: vscode.QuickPickItem | undefined, hashList: ConfigData[]): ConfigData | null {
+        const targetA = JSON.stringify(needle || {});
+        for (const hash of hashList) {
+            const targetB = JSON.stringify(hash.toQuickPickItem());
             if (targetA === targetB) {
-                return hash[i];
+                return hash;
             }
         }
         return null;
@@ -116,11 +116,15 @@ export class SettingIO {
     public outputReset: boolean;
     public outputPath: string;
     public templatePath: string;
+    public combine: boolean;
+    public combineFileNam: string;
     constructor(config: any, workspaceRoot: string) {
         config = config || {};
         this.outputReset = !!config.outputReset;
         this.outputPath =  (config.outputPath || '${workspaceRoot}\\output').replace(/\${workspaceRoot}/g, workspaceRoot);
         this.templatePath = (config.templatePath || '').replace(/\${workspaceRoot}/g, workspaceRoot);
+        this.combine = config?.combine?.enabled ?? false;
+        this.combineFileNam = config?.combine?.fileName ?? 'noTitle';
     }
 }
 
