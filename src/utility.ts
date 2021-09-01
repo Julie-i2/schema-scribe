@@ -28,3 +28,18 @@ export const when = <T>(val: T) => ({
     fn: () => A
   ) => pred(val) ? match<T, A>(fn()) : chain<T, A>(val)
 })
+
+/**
+ * エラーメッセージを解析して返す
+ * @param err
+ * @returns
+ */
+export function findErrorMessage(err: any) {
+  let errMess = ''
+  if (typeof errMess === 'string') {
+    errMess = err
+  } else if (err instanceof Error) {
+    errMess = err.toString()
+  }
+  return errMess
+}

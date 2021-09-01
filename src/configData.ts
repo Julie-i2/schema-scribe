@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { readFileSync } from 'fs'
+import { findErrorMessage } from './utility'
 
 /**
  * 設定データ読み込み結果
@@ -52,8 +53,8 @@ export class ConfigData {
     if (!vscode.workspace.workspaceFolders) {
       throw Error('WorkSpace上でないと使用できません')
     }
-    let configs: ConfigData[] = []
-    let errMess: string[] = []
+    const configs: ConfigData[] = []
+    const errMessList: string[] = []
     for (const folder of vscode.workspace.workspaceFolders) {
       try {
         const configFilePath = `${folder.uri.fsPath}\\.dtomaker\\config.json`
@@ -65,10 +66,11 @@ export class ConfigData {
         }
       } catch (err) {
         // ファイルの存在判定がないため、例外をcatch
-        errMess.push(err.toString())
+        const errMess = findErrorMessage(err)
+        errMessList.push(errMess)
       }
     }
-    return new ConfigReadResult(configs, errMess)
+    return new ConfigReadResult(configs, errMessList)
   }
 
   /**

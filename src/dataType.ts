@@ -3,12 +3,12 @@ import { when } from './utility'
 
 /** データ型 */
 enum DataType {
-  INT = 1,
-  FLOAT = 2,
-  DATETIME = 3,
-  DATE = 4,
-  TIME = 5,
-  STRING = 6,
+  int = 1,
+  float = 2,
+  dateTime = 3,
+  date = 4,
+  time = 5,
+  string = 6,
 }
 
 /**
@@ -54,20 +54,20 @@ class DefaultValues
   }
   public getDefaultValue(dataType: DataType): string {
     return when(dataType)
-      .on((v) => v === DataType.INT, () => this.typeInt)
-      .on((v) => v === DataType.FLOAT, () => this.typeFloat)
-      .on((v) => v === DataType.DATETIME, () => this.typeDateTime)
-      .on((v) => v === DataType.DATE, () => this.typeDate)
-      .on((v) => v === DataType.TIME, () => this.typeTime)
+      .on((v) => v === DataType.int, () => this.typeInt)
+      .on((v) => v === DataType.float, () => this.typeFloat)
+      .on((v) => v === DataType.dateTime, () => this.typeDateTime)
+      .on((v) => v === DataType.date, () => this.typeDate)
+      .on((v) => v === DataType.time, () => this.typeTime)
       .otherwise(() => this.typeString)
   }
   public getHungarian(dataType: DataType): string {
     return when(dataType)
-      .on((v) => v === DataType.INT, () => this.hungarianInt)
-      .on((v) => v === DataType.FLOAT, () => this.hungarianFloat)
-      .on((v) => v === DataType.DATETIME, () => this.hungarianDatetime)
-      .on((v) => v === DataType.DATE, () => this.hungarianDate)
-      .on((v) => v === DataType.TIME, () => this.hungarianTime)
+      .on((v) => v === DataType.int, () => this.hungarianInt)
+      .on((v) => v === DataType.float, () => this.hungarianFloat)
+      .on((v) => v === DataType.dateTime, () => this.hungarianDatetime)
+      .on((v) => v === DataType.date, () => this.hungarianDate)
+      .on((v) => v === DataType.time, () => this.hungarianTime)
       .otherwise(() => this.hungarianString)
   }
 }
@@ -134,12 +134,12 @@ export abstract class DataTypeFinder {
    */
   private findType(source: string) : DataType {
     return when(source)
-      .on((v) => /(int|bit)/i.test(v), () => DataType.INT)
-      .on((v) => /(decimal|float|double)/i.test(v), () => DataType.FLOAT)
-      .on((v) => /(datetime)/i.test(v), () => DataType.DATETIME)
-      .on((v) => /(date)/i.test(v), () => DataType.DATE)
-      .on((v) => /(time)/i.test(v), () => DataType.TIME)
-      .otherwise(() => DataType.STRING)
+      .on((v) => /(int|bit)/i.test(v), () => DataType.int)
+      .on((v) => /(decimal|float|double)/i.test(v), () => DataType.float)
+      .on((v) => /(datetime)/i.test(v), () => DataType.dateTime)
+      .on((v) => /(date)/i.test(v), () => DataType.date)
+      .on((v) => /(time)/i.test(v), () => DataType.time)
+      .otherwise(() => DataType.string)
   }
 }
 
@@ -148,19 +148,19 @@ export abstract class DataTypeFinder {
  */
 export class DataTypeFinderForPHP extends DataTypeFinder {
   /** データ型名称リスト */
-  private static get DATA_TYPE_LIST(): Map<DataType, string> {
+  private static get dataTypeList(): Map<DataType, string> {
     return new Map<DataType, string>([
-      [DataType.INT, 'int'],
-      [DataType.FLOAT, 'float'],
-      [DataType.STRING, 'string'],
-      [DataType.DATETIME, 'datetime'],
-      [DataType.DATE, 'date'],
-      [DataType.TIME, 'time'],
+      [DataType.int, 'int'],
+      [DataType.float, 'float'],
+      [DataType.string, 'string'],
+      [DataType.dateTime, 'datetime'],
+      [DataType.date, 'date'],
+      [DataType.time, 'time'],
     ])
   }
 
   /** データ型デフォルト値リスト */
-  private static get DEFAULT_VALUE_LIST(): object {
+  private static get defaultValueList(): object {
     return {
       int: '0',
       float: '0.0',
@@ -176,7 +176,7 @@ export class DataTypeFinderForPHP extends DataTypeFinder {
    * @param defaultValues 初期値リスト
    */
   public constructor(defaultValues: object) {
-    super(DataTypeFinderForPHP.DEFAULT_VALUE_LIST)
+    super(DataTypeFinderForPHP.defaultValueList)
     this.defaultValues.overwrite(defaultValues)
   }
 
@@ -187,7 +187,7 @@ export class DataTypeFinderForPHP extends DataTypeFinder {
    * @returns データ種別ラベル
    */
   protected createDataTypeLabel(fieldInfo: DBTableColumn, dataType: DataType) : string {
-    let dataTypeLabel = DataTypeFinderForPHP.DATA_TYPE_LIST.get(dataType) ?? ''
+    let dataTypeLabel = DataTypeFinderForPHP.dataTypeList.get(dataType) ?? ''
     if (fieldInfo.null === 'YES') {
       dataTypeLabel += '|null'
     }
@@ -206,8 +206,8 @@ export class DataTypeFinderForPHP extends DataTypeFinder {
       return (fieldInfo.null === 'YES') ? 'null' : this.defaultValues.getDefaultValue(dataType)
     } else {
       return when(dataType)
-        .on((v) => v === DataType.INT, () => value)
-        .on((v) => v === DataType.FLOAT, () => value)
+        .on((v) => v === DataType.int, () => value)
+        .on((v) => v === DataType.float, () => value)
         .otherwise(() => `'${value}'`)
     }
   }
@@ -219,19 +219,19 @@ export class DataTypeFinderForPHP extends DataTypeFinder {
 export class DataTypeFinderForTS extends DataTypeFinder
 {
   /** データ型名称リスト */
-  private static get DATA_TYPE_LIST(): Map<DataType, string> {
+  private static get dataTypeList(): Map<DataType, string> {
     return new Map<DataType, string>([
-      [DataType.INT, 'number'],
-      [DataType.FLOAT, 'number'],
-      [DataType.STRING, 'string'],
-      [DataType.DATETIME, 'Date'],
-      [DataType.DATE, 'Date'],
-      [DataType.TIME, 'Date'],
+      [DataType.int, 'number'],
+      [DataType.float, 'number'],
+      [DataType.string, 'string'],
+      [DataType.dateTime, 'Date'],
+      [DataType.date, 'Date'],
+      [DataType.time, 'Date'],
     ])
   }
 
   /** データ型デフォルト値リスト */
-  private static get DEFAULT_VALUE_LIST(): object {
+  private static get defaultValueList(): object {
     return {
       int: '0',
       float: '0.0',
@@ -247,7 +247,7 @@ export class DataTypeFinderForTS extends DataTypeFinder
    * @param defaultValues 初期値リスト
    */
   public constructor(defaultValues: object) {
-    super(DataTypeFinderForTS.DEFAULT_VALUE_LIST)
+    super(DataTypeFinderForTS.defaultValueList)
     this.defaultValues.overwrite(defaultValues)
   }
 
@@ -258,8 +258,8 @@ export class DataTypeFinderForTS extends DataTypeFinder
    * @returns データ種別ラベル
    */
   protected createDataTypeLabel(fieldInfo: DBTableColumn, dataType: DataType) : string {
-    const dataTypeLabel = DataTypeFinderForTS.DATA_TYPE_LIST.get(dataType) ?? ''
-    const nullable = fieldInfo.null === 'YES' || [DataType.DATETIME, DataType.DATE, DataType.TIME].includes(dataType)
+    const dataTypeLabel = DataTypeFinderForTS.dataTypeList.get(dataType) ?? ''
+    const nullable = fieldInfo.null === 'YES' || [DataType.dateTime, DataType.date, DataType.time].includes(dataType)
     return nullable ? dataTypeLabel + '|null' : dataTypeLabel
   }
 
@@ -273,11 +273,11 @@ export class DataTypeFinderForTS extends DataTypeFinder
     const defaultValue = (fieldInfo.null === 'YES') ? 'null' : this.defaultValues.getDefaultValue(dataType)
     const value = fieldInfo.default ?? defaultValue
     return when(dataType)
-      .on((v) => v === DataType.INT, () => value)
-      .on((v) => v === DataType.FLOAT, () => value)
-      .on((v) => v === DataType.DATETIME, () => 'null')
-      .on((v) => v === DataType.DATE, () => 'null')
-      .on((v) => v === DataType.TIME, () => 'null')
+      .on((v) => v === DataType.int, () => value)
+      .on((v) => v === DataType.float, () => value)
+      .on((v) => v === DataType.dateTime, () => 'null')
+      .on((v) => v === DataType.date, () => 'null')
+      .on((v) => v === DataType.time, () => 'null')
       .otherwise(() => `'${value}'`)
   }
 }

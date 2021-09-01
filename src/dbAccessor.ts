@@ -1,4 +1,4 @@
-import { Connection, createConnection, MysqlError } from 'mysql'
+import { Connection, createConnection } from 'mysql2'
 
 /**
  * データベーステーブル情報取得クラス
@@ -27,8 +27,8 @@ export class DBAccessor {
   getTables(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       const sql = 'SHOW TABLES;'
-      this.con.query(sql, (err: MysqlError|null, results: any[]) => {
-        if (err != null) {
+      this.con.query(sql, (err: Error|null, results: any[]) => {
+        if (err === null) {
           resolve(results.map(table => String(Object.values(table)[0])))
         } else {
           reject(err)
@@ -44,8 +44,8 @@ export class DBAccessor {
   getTableInfo(tableName: string): Promise<DBTable> {
     return new Promise((resolve, reject) => {
       const sql = this.con.format('SHOW TABLE STATUS LIKE ?;', [tableName])
-      this.con.query(sql, (err: MysqlError|null, results: any[]) => {
-        if (err != null && results.length > 0) {
+      this.con.query(sql, (err: Error|null, results: any[]) => {
+        if (err === null && results.length > 0) {
           resolve(new DBTable(results[0]))
         } else {
           reject(err ?? new Error('テーブル情報の取得に失敗'))
@@ -61,8 +61,8 @@ export class DBAccessor {
   getTableColumns(tableName: string): Promise<DBTableColumn[]> {
     return new Promise((resolve, reject) => {
       const sql = `SHOW FULL COLUMNS FROM \`${tableName}\`;`
-      this.con.query(sql, (err: MysqlError|null, results: any[]) => {
-        if (err != null) {
+      this.con.query(sql, (err: Error|null, results: any[]) => {
+        if (err === null) {
           resolve(results.map(tableColumn => new DBTableColumn(tableColumn)))
         } else {
           reject(err)

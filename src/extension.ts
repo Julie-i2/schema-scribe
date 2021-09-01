@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { DTOMaker } from './dtomaker'
 import { SQLBuilder } from './sqlBuilder'
 import { ConfigData } from './ConfigData'
+import { findErrorMessage } from './utility';
 
 /**
  * VS Code起動時に処理を登録する
@@ -21,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
   /**
    * 設定されたDTOをすべて作成する
    */
-  const disposableAll = vscode.commands.registerCommand('extension.dtomaker.all', async () => {
+  const disposableAll = vscode.commands.registerCommand('dtomaker.all', async () => {
     try {
       const readResult = ConfigData.read()
       if (readResult.configs.length === 0) {
@@ -36,16 +37,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
       }
       vscode.window.showInformationMessage('DTO Maker: Success! Created DTO')
-    } catch (err) {
-      outputChannel.appendLine(err.toString())
-      vscode.window.showErrorMessage('【DTO Maker】' + err.toString())
+    } catch (err: any) {
+      const errMess = findErrorMessage(err)
+      if (errMess) {
+        outputChannel.appendLine(errMess)
+        vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
+      }
     }
   })
 
   /**
    * 設定されたDTOを1案件分だけ作る
    */
-  const disposableOne = vscode.commands.registerCommand('extension.dtomaker.one', () => {
+  const disposableOne = vscode.commands.registerCommand('dtomaker.one', () => {
     try {
       const pickItems : vscode.QuickPickItem[] = []
       const readResult = ConfigData.read()
@@ -65,20 +69,22 @@ export function activate(context: vscode.ExtensionContext) {
           if (choice) {
             outputChannel.append(`[${choice.description}] `)
           }
-          outputChannel.appendLine(err.toString())
-          vscode.window.showErrorMessage(`【DTO Maker】${err.toString()}`)
+          const errMess = findErrorMessage(err)
+          outputChannel.appendLine(errMess)
+          vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
         }
       })
     } catch (err) {
-      outputChannel.appendLine(err.toString())
-      vscode.window.showErrorMessage(`【DTO Maker】${err.toString()}`)
+      const errMess = findErrorMessage(err)
+      outputChannel.appendLine(errMess)
+      vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
     }
   })
 
   /**
    * 設定されたDTOを1案件分だけ作る
    */
-  let generateSQLiteSchemaOne = vscode.commands.registerCommand('extension.dtomaker.sqliteone', () => {
+  let generateSQLiteSchemaOne = vscode.commands.registerCommand('dtomaker.sqliteone', () => {
     try {
       const pickItems : vscode.QuickPickItem[] = []
       const readResult = ConfigData.read()
@@ -98,13 +104,15 @@ export function activate(context: vscode.ExtensionContext) {
           if (choice) {
             outputChannel.append(`[${choice.description}] `)
           }
-          outputChannel.appendLine(err.toString())
-          vscode.window.showErrorMessage(`【DTO Maker】${err.toString()}`)
+          const errMess = findErrorMessage(err)
+          outputChannel.appendLine(errMess)
+          vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
         }
       })
     } catch (err) {
-      outputChannel.appendLine(err.toString())
-      vscode.window.showErrorMessage(`【DTO Maker】${err.toString()}`)
+      const errMess = findErrorMessage(err)
+      outputChannel.appendLine(errMess)
+      vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
     }
   })
 

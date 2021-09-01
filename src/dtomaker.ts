@@ -110,7 +110,7 @@ class Template
     this.template = fs.readFileSync(config.io.templatePath, 'utf8')
     this.classNameFormat = config.format.className
     this.ltrimTableName = config.format.ltrimTableName
-    if (config.format.fileExtension == 'php') {
+    if (config.format.fileExtension === 'php') {
       this.dataTypeFinder = new DataTypeFinderForPHP(config.format.defaultValues)
     } else {
       this.dataTypeFinder = new DataTypeFinderForTS(config.format.defaultValues)
@@ -181,7 +181,7 @@ class DTOWriter {
   /** プライマリフィールド名 */
   private primaryKey: string = ''
   /** 置き換えフィールド保持配列 */
-  private replaceFields: string[][]
+  private replaceFieldMap: Map<number, string[]>
   /** デフォルト値 */
   private dataTypeFinder: DataTypeFinder
 
@@ -197,7 +197,10 @@ class DTOWriter {
     this.className = className
     this.tableInfo = tableInfo
     this.dataTypeFinder = dataTypeFinder
-    this.replaceFields = new Array<Array<string>>(fieldTemplates.length).fill([])
+    this.replaceFieldMap = new Map<number, string[]>()
+    for (let i = 0; i < fieldTemplates.length; i++) {
+      this.replaceFieldMap.set(i, [])
+    }
   }
 
   /**
@@ -217,7 +220,8 @@ class DTOWriter {
       tmpField = tmpField.replace(PATTERN_FIELD_NAME_UPPERCASE, fieldInfo.field.toUpperCase())
       tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.null)
       tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, dataType.defaultValue)
-      this.replaceFields[index].push(tmpField)
+      const list = this.replaceFieldMap.get(index) || []
+      list.push(tmpField)
     }
   }
 
@@ -231,7 +235,7 @@ class DTOWriter {
     this.content = this.content.replace(PATTERN_TABLE_NAME, this.tableInfo.name)
     this.content = this.content.replace(PATTERN_ENGINE, this.tableInfo.engine)
     this.content = this.content.replace(PATTERN_PRIMARY_ID, this.primaryKey)
-    for (const [index, fields] of this.replaceFields.entries()) {
+    for (const [index, fields] of this.replaceFieldMap) {
       const number = index + 1
       const regExp = new RegExp(`FIELD_LIST_NO_${number}`)
       this.content = this.content.replace(regExp, fields.join(''))

@@ -1,5 +1,5 @@
 {
-    "extension.dtomaker.all.title": "設定されたDTOをすべて作成",
-    "extension.dtomaker.one.title": "DTOを1つの案件分作成",
-    "extension.dtomaker.sqliteone.title": "SQLiteを作成"
+    "dtomaker.all.title": "設定されたDTOをすべて作成",
+    "dtomaker.one.title": "DTOを1つの案件分作成",
+    "dtomaker.sqliteone.title": "SQLiteを作成"
 }
