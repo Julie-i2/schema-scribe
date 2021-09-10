@@ -55,6 +55,42 @@ export class DBAccessor {
   }
 
   /**
+   * テーブルのCreate構文を取得
+   * @param tableName
+   * @returns
+   */
+  getTableCreate(tableName: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const sql = `SHOW CREATE TABLE \`${tableName}\`;`
+      this.con.query(sql, (err: Error|null, results: any[]) => {
+        if (err === null && results.length > 0) {
+          resolve(String(Object.values(results[0])[1]))
+        } else {
+          reject(err ?? new Error('テーブル生成構文の取得に失敗'))
+        }
+      })
+    })
+  }
+
+  /**
+   * テーブルのインデックス情報を取得
+   * @param tableName
+   * @returns
+   */
+  getTableIndexes(tableName: string): Promise<DBTableIndex[]> {
+    return new Promise((resolve, reject) => {
+      const sql = `SHOW INDEX FROM \`${tableName}\`;`
+      this.con.query(sql, (err: Error|null, results: any[]) => {
+        if (err === null) {
+          resolve(results.map(result => new DBTableIndex(result)))
+        } else {
+          reject(err ?? new Error('テーブルのインデックス情報の取得に失敗'))
+        }
+      })
+    })
+  }
+
+  /**
    * テーブルカラム情報を取得
    * @param tableName テーブル名
    */
@@ -118,6 +154,43 @@ export class DBTable {
     this.checksum = tableData.Checksum || null
     this.createOptions = tableData.Create_options || ''
     this.comment = tableData.Comment || ''
+  }
+}
+
+/**
+ * データベースインデックス情報クラス
+ */
+export class DBTableIndex {
+  table: string
+  nonUnique: number
+  keyName: string
+  seqInIndex: number
+  columnName: string
+  collation: string|null
+  cardinality: number|null
+  subPart: number|null
+  packed: string|null
+  nullable: string
+  indexType: string
+  comment: string|null
+
+  /**
+   * コンストラクタ
+   * @param indexData インデックス情報
+   */
+  constructor(indexData: any) {
+    this.table = indexData.Table
+    this.nonUnique = indexData.Non_unique
+    this.keyName = indexData.Key_name
+    this.seqInIndex = indexData.Seq_in_index
+    this.columnName = indexData.Column_name
+    this.collation = indexData.Collation
+    this.cardinality = indexData.Cardinality
+    this.subPart = indexData.Sub_part
+    this.packed = indexData.Packed
+    this.nullable = indexData.Null
+    this.indexType = indexData.Index_type
+    this.comment = indexData.Comment
   }
 }
 

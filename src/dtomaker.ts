@@ -1,7 +1,7 @@
-import * as fs from 'fs'
-import { ConfigData } from './ConfigData'
-import { DataTypeFinder, DataTypeFinderForPHP, DataTypeFinderForTS } from './dataType'
-import { DBAccessor, DBTable, DBTableColumn } from './dbAccessor'
+import { SettingFormat } from './ConfigData'
+import { DataTypeFinder } from './dataType'
+import { DBTable, DBTableColumn, DBTableIndex } from './dbAccessor'
+import { camelize } from './utility'
 
 
 /** 正規表現パターン：クラス名 */
@@ -10,18 +10,29 @@ const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g
 const PATTERN_CLASS_DESCRIPTION = /\{\{class_desc\}\}/g
 /** 正規表現パターン：テーブル名 */
 const PATTERN_TABLE_NAME = /\{\{table_name\}\}/g
+/** 正規表現パターン：テーブルコメント */
+const PATTERN_TABLE_COMMENT = /\{\{table_comment\}\}/g
 /** 正規表現パターン：エンジン */
 const PATTERN_ENGINE = /\{\{engine\}\}/g
 /** 正規表現パターン：プライマリID */
 const PATTERN_PRIMARY_ID = /\{\{primary_id\}\}/g
+const PATTERN_PRIMARY_IDS = /\{\{primary_ids\}\}/g
+const PATTERN_PRIMARY_IDS_SINGLE_QUOTE = /\{\{primary_ids_sq\}\}/g
+const PATTERN_PRIMARY_IDS_DOUBLE_QUOTE = /\{\{primary_ids_dq\}\}/g
 /** 正規表現パターン：フィールドリスト */
 const PATTERN_FIELD_LIST_WHOLE = /<<<fields_list(\r\n|\n).*?>>>fields_list(\r\n|\n)/gs
 /** 正規表現パターン：フィールドリスト */
 const PATTERN_FIELD_LIST_PARTS = /<<<fields_list(\r\n|\n)(.*?)>>>fields_list(\r\n|\n)/s
+/** 正規表現パターン：インデックスリスト */
+const PATTERN_INDEX_LIST_WHOLE = /<<<indexes_list(\r\n|\n).*?>>>indexes_list(\r\n|\n)/gs
+/** 正規表現パターン：インデックスリスト */
+const PATTERN_INDEX_LIST_PARTS = /<<<indexes_list(\r\n|\n)(.*?)>>>indexes_list(\r\n|\n)/s
 /** 正規表現パターン(フィールド)：フィールドコメント */
 const PATTERN_FIELD_COMMENT = /\{\{field_comment\}\}/g
 /** 正規表現パターン(フィールド)：フィールド型 */
 const PATTERN_FIELD_TYPE = /\{\{field_type\}\}/g
+/** 正規表現パターン(フィールド)：プログラム言語型 */
+const PATTERN_FIELD_LANG_TYPE = /\{\{field_lang_type\}\}/g
 /** 正規表現パターン(フィールド)：フィールド名 */
 const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g
 /** 正規表現パターン(フィールド)：フィールド名(大文字) */
@@ -30,235 +41,212 @@ const PATTERN_FIELD_NAME_UPPERCASE = /\{\{field_name_uppercase\}\}/g
 const PATTERN_FIELD_NULLABLE = /\{\{field_nullable\}\}/g
 /** 正規表現パターン(フィールド)：フィールドの既定値 */
 const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/g
-
+/** 正規表現パターン(フィールド)：プログラム言語の既定値 */
+const PATTERN_FIELD_LANG_DEFAULT_VALUE = /\{\{field_lang_default_value\}\}/g
+/** 正規表現パターン(フィールド)：フィールドのキー */
+const PATTERN_FIELD_KEY = /\{\{field_key\}\}/g
+/** 正規表現パターン(フィールド)：フィールドのExtra */
+const PATTERN_FIELD_EXTRA = /\{\{field_extra\}\}/g
+/** 正規表現パターン(インデックス)：インデックス名 */
+const PATTERN_INDEX_NAME = /\{\{index_name\}\}/g
+/** 正規表現パターン(インデックス)：カラム */
+const PATTERN_INDEX_COLUMNS = /\{\{index_columns\}\}/g
+/** 正規表現パターン(インデックス)：複合キー順序 */
+const PATTERN_INDEX_ORDER = /\{\{index_order\}\}/g
+/** 正規表現パターン(インデックス)：NULL */
+const PATTERN_INDEX_NULLABLE = /\{\{index_nullable\}\}/g
+/** 正規表現パターン(インデックス)：ユニーク */
+const PATTERN_INDEX_UNIQUE = /\{\{index_unique\}\}/g
 
 /**
  * DTOメーカー
  */
-export class DTOMaker {
-  /**
-   * 生成
-   * @param config 設定データ
-   */
-  public static build(config: ConfigData): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const dbAccessor = new DBAccessor(config.database)
-        const template = new Template(config)
-
-        // すでにあるファイルをすべて削除する
-        if (config.io.outputReset) {
-          const fileNames = fs.readdirSync(config.io.outputPath)
-          for (const fileName of fileNames) {
-            fs.unlinkSync(`${config.io.outputPath}\\${fileName}`)
-          }
-        }
-
-        // テーブル名リストを取得
-        const tableNames = (config.tableList.length > 0) ? config.tableList : await dbAccessor.getTables()
-
-        // テーブル詳細取得＆テンプレート置き換え
-        const dtoWriters: DTOWriter[] = []
-        for (const tableName of tableNames) {
-          const dbTable = await dbAccessor.getTableInfo(tableName)
-          const dtoWriter = template.createMaker(dbTable)
-          const tableColumns = await dbAccessor.getTableColumns(dbTable.name)
-          for (const dbTableColumn of tableColumns) {
-            dtoWriter.addField(dbTableColumn)
-          }
-          dtoWriter.replace()
-          dtoWriters.push(dtoWriter)
-        }
-
-        // 出力
-        if (config.io.combine) {
-          let content = ''
-          for (const dtoWriter of dtoWriters) {
-            content += dtoWriter.getContent(config.format.fileExtension)
-          }
-          fs.writeFileSync(`${config.io.outputPath}\\${config.io.combineFileNam}.${config.format.fileExtension}`, content, 'utf8')
-        } else {
-          for (const dtoWriter of dtoWriters) {
-            dtoWriter.output(config.io.outputPath, config.format.fileExtension)
-          }
-        }
-        resolve()
-      } catch (err) {
-        reject(err)
-      }
-    })
-  }
-}
-
-/**
- * DTOテンプレート
- */
-class Template
+export class DTOMaker
 {
   /** テンプレートコンテンツ */
   private template: string
   private fieldTemplates: string[] = []
+  private indexTemplates: string[] = []
+  private dataTypeFinder: DataTypeFinder|null
   private classNameFormat: string
   private ltrimTableName: string
-  private dataTypeFinder: DataTypeFinder
 
   /**
    * コンストラクタ
+   * @param template テンプレート文
    * @param config 設定データ
    */
-  public constructor(config: ConfigData) {
-    this.template = fs.readFileSync(config.io.templatePath, 'utf8')
-    this.classNameFormat = config.format.className
-    this.ltrimTableName = config.format.ltrimTableName
-    if (config.format.fileExtension === 'php') {
-      this.dataTypeFinder = new DataTypeFinderForPHP(config.format.defaultValues)
-    } else {
-      this.dataTypeFinder = new DataTypeFinderForTS(config.format.defaultValues)
-    }
-
-    // テンプレートからフィールドテンプレートを抜き出す
-    let counter = 1
-    this.template = this.template.replace(PATTERN_FIELD_LIST_WHOLE, (match) => {
+  public constructor(template: string, { className, ltrimTableName, fileExtension, defaultValues }: SettingFormat) {
+    // テンプレートからフィールドテンプレートとインデックステンプレートを抜き出す
+    let fieldCounter = 1
+    template = template.replace(PATTERN_FIELD_LIST_WHOLE, (match) => {
       const fieldListContents = match.match(PATTERN_FIELD_LIST_PARTS) || []
       this.fieldTemplates.push(fieldListContents[2] || '')
-      return `FIELD_LIST_NO_${counter++}`
+      return `FIELD_LIST_NO_${fieldCounter++}`
     })
+    let indexCounter = 1
+    template = template.replace(PATTERN_INDEX_LIST_WHOLE, (match) => {
+      const indexListContents = match.match(PATTERN_INDEX_LIST_PARTS) || []
+      this.indexTemplates.push(indexListContents[2] || '')
+      return `INDEX_LIST_NO_${indexCounter++}`
+    })
+    this.template = template
+    this.classNameFormat = className
+    this.ltrimTableName = ltrimTableName
+    this.dataTypeFinder = DataTypeFinder.create(defaultValues, fileExtension)
   }
 
   /**
-   * データベースDTOメーカーを生成して返す
+   * DBテーブル情報からDTO構築機を取得する
    * @param {DBTable} dbTable テーブル名
-   * @returns {DTOWriter}
+   * @returns {DTOBuilder}
    */
-  public createMaker(dbTable: DBTable): DTOWriter {
-    return new DTOWriter(this.template, this.fieldTemplates, this.createClassName(dbTable.name), dbTable, this.dataTypeFinder)
+  public createBuilder(dbTable: DBTable): DTOBuilder {
+    return new DTOBuilder(this, dbTable)
+  }
+
+  public getContent(): string {
+    return this.template
+  }
+
+  public getFieldTemplates(): string[] {
+    return this.fieldTemplates
+  }
+
+  public getIndexTemplates(): string[] {
+    return this.indexTemplates
+  }
+
+  public getDataTypeFinder(): DataTypeFinder|null {
+    return this.dataTypeFinder
   }
 
   /**
    * テーブル名からクラス名を生成
    * @param tableName テーブル名
    */
-  private createClassName(tableName: string): string {
+  public createClassName(tableName: string): string {
     if (this.ltrimTableName) {
       const ltrimRegex = new RegExp(`^${this.ltrimTableName}`)
       tableName = tableName.replace(ltrimRegex, '')
     }
     tableName = tableName.replace(/\.|\"|\/|\\|\[|\]|\:|\;|\||\=|\,/g, ' ')
-    tableName = this.camelize(tableName)
+    tableName = camelize(tableName)
     const classNameRegex = /\${className}/
     if (this.classNameFormat && classNameRegex.test(this.classNameFormat)) {
       tableName = this.classNameFormat.replace(classNameRegex, tableName)
     }
     return tableName
   }
-
-  /**
-   * スネイクケースからキャメルケースに変換する
-   * @param source スネイクケース
-   * @returns キャメルケース
-   */
-  private camelize(source: string): string {
-    return source
-      .replace(/_/g, ' ')
-      .replace(/^(.)|\s+(.)/g, ($1) => $1.toUpperCase())
-      .replace(/\s/g, '')
-      .replace(/^[a-z]/g, (val) => val.toUpperCase())
-  }
 }
 
 /**
- * テンプレート置き換えクラス
+ * テンプレートを元に置き換えをするクラス
  */
-class DTOWriter {
-  /** コンテンツ */
-  private content: string
-  /** フィールドテンプレート */
-  private fieldTemplates: string[]
+class DTOBuilder {
+  /** 共通部メーカー */
+  private maker: DTOMaker
   /** クラス名 */
   private className: string
-  /** テーブル名 */
+  /** テーブル情報 */
   private tableInfo: DBTable
   /** プライマリフィールド名 */
-  private primaryKey: string = ''
+  private primaryKeys: string[] = []
   /** 置き換えフィールド保持配列 */
-  private replaceFieldMap: Map<number, string[]>
-  /** デフォルト値 */
-  private dataTypeFinder: DataTypeFinder
+  private replaceFieldMap: Map<number, string[]> = new Map()
+  /** 置き換えインデックス保持配列 */
+  private replaceIndexMap: Map<number, string[]> = new Map()
 
   /**
    * コンストラクタ
-   * @param content コンテンツ
-   * @param fieldTemplates フィールドリストテンプレート
-   * @param className テーブル名
+   * @param maker 共通部メーカー
+   * @param tableInfo DBテーブル情報
    */
-  public constructor(content: string, fieldTemplates: string[], className: string, tableInfo: DBTable, dataTypeFinder: DataTypeFinder) {
-    this.content = content
-    this.fieldTemplates = fieldTemplates
-    this.className = className
+  public constructor(maker: DTOMaker, tableInfo: DBTable) {
+    this.maker = maker
+    this.className = maker.createClassName(tableInfo.name)
     this.tableInfo = tableInfo
-    this.dataTypeFinder = dataTypeFinder
-    this.replaceFieldMap = new Map<number, string[]>()
-    for (let i = 0; i < fieldTemplates.length; i++) {
-      this.replaceFieldMap.set(i, [])
-    }
   }
 
   /**
    * フィールド情報追加
    * @param array $aFieldInfo フィールド情報配列
    */
-  public addField(fieldInfo: DBTableColumn) {
+  public addField(fieldInfo: DBTableColumn): void {
     if (fieldInfo.key === 'PRI') {
-      this.primaryKey = fieldInfo.field
+      this.primaryKeys.push(fieldInfo.field)
     }
-    const dataType = this.dataTypeFinder.find(fieldInfo)
-    for (const [index, fieldTemplate] of this.fieldTemplates.entries()) {
+    const dataTypeFinder = this.maker.getDataTypeFinder()
+    const dataType = dataTypeFinder?.find(fieldInfo)
+    for (const [index, fieldTemplate] of this.maker.getFieldTemplates().entries()) {
       let tmpField = fieldTemplate
       tmpField = tmpField.replace(PATTERN_FIELD_COMMENT, fieldInfo.comment)
-      tmpField = tmpField.replace(PATTERN_FIELD_TYPE, dataType.label)
+      tmpField = tmpField.replace(PATTERN_FIELD_TYPE, fieldInfo.type)
+      tmpField = tmpField.replace(PATTERN_FIELD_LANG_TYPE, dataType?.label ?? '')
       tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.field)
       tmpField = tmpField.replace(PATTERN_FIELD_NAME_UPPERCASE, fieldInfo.field.toUpperCase())
       tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.null)
-      tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, dataType.defaultValue)
-      const list = this.replaceFieldMap.get(index) || []
+      tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, fieldInfo.default ?? 'n/a')
+      tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')
+      tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.key)
+      tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.extra)
+      const list = this.replaceFieldMap.get(index) ?? []
+      this.replaceFieldMap.set(index, list)
       list.push(tmpField)
     }
   }
 
+  public addIndex(indexInfo: DBTableIndex): void {
+    for (const [index, indexTemplate] of this.maker.getIndexTemplates().entries()) {
+      let tmpIndex = indexTemplate
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NAME, indexInfo.keyName)
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_COLUMNS, indexInfo.columnName)
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_ORDER, indexInfo.seqInIndex.toString())
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NULLABLE, indexInfo.nullable || 'NO')
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_UNIQUE, Boolean(indexInfo.nonUnique) ? 'NO' : 'YES')
+      const list = this.replaceIndexMap.get(index) ?? []
+      this.replaceIndexMap.set(index, list)
+      list.push(tmpIndex)
+    }
+  }
+
   /**
-   * 置き換え
+   * クラス名（DTOファイル名）を取得
+   * @returns
    */
-  public replace() {
+  public getClassName(): string {
+    return this.className
+  }
+
+  /**
+   * 生成したコンテンツを取得する
+   * @param eol 改行コード
+   */
+  public generateContent(eol: string | null = null): string {
     const comment = this.tableInfo.comment.replace(/(\r\n|\n)/g, '$1 * ')
-    this.content = this.content.replace(PATTERN_CLASS_NAME, this.className)
-    this.content = this.content.replace(PATTERN_CLASS_DESCRIPTION, comment)
-    this.content = this.content.replace(PATTERN_TABLE_NAME, this.tableInfo.name)
-    this.content = this.content.replace(PATTERN_ENGINE, this.tableInfo.engine)
-    this.content = this.content.replace(PATTERN_PRIMARY_ID, this.primaryKey)
+    let content = this.maker.getContent()
+    content = content.replace(PATTERN_CLASS_NAME, this.className)
+    content = content.replace(PATTERN_CLASS_DESCRIPTION, comment)
+    content = content.replace(PATTERN_TABLE_NAME, this.tableInfo.name)
+    content = content.replace(PATTERN_TABLE_COMMENT, this.tableInfo.comment)
+    content = content.replace(PATTERN_ENGINE, this.tableInfo.engine)
+    content = content.replace(PATTERN_PRIMARY_ID, this.primaryKeys[0] ?? '')
+    content = content.replace(PATTERN_PRIMARY_IDS, this.primaryKeys.join(','))
+    content = content.replace(PATTERN_PRIMARY_IDS_SINGLE_QUOTE, this.primaryKeys.map(key => `'${key}'`).join(','))
+    content = content.replace(PATTERN_PRIMARY_IDS_DOUBLE_QUOTE, this.primaryKeys.map(key => `"${key}"`).join(','))
     for (const [index, fields] of this.replaceFieldMap) {
       const number = index + 1
       const regExp = new RegExp(`FIELD_LIST_NO_${number}`)
-      this.content = this.content.replace(regExp, fields.join(''))
+      content = content.replace(regExp, fields.join(''))
     }
-  }
-
-  /**
-   * DTOファイル出力
-   * @param string eol 改行コード指定
-   */
-  public output(path: string, fileExtension: string, eol: string|null = null) {
-    const content = this.getContent(eol)
-    fs.writeFileSync(`${path}\\${this.className}.${fileExtension}`, content, 'utf8')
-  }
-
-  /**
-   * コンテンツ取得
-   * @param eol 改行コード
-   */
-  public getContent(eol: string|null = null): string {
+    for (const [index, indexes] of this.replaceIndexMap) {
+      const number = index + 1
+      const regExp = new RegExp(`INDEX_LIST_NO_${number}`)
+      content = content.replace(regExp, indexes.join(''))
+    }
     if (eol && ['\r\n', '\r', '\n'].indexOf(eol) > -1) {
-      this.content = this.content.replace('/\r\n|\r|\n/', eol)
+      content = content.replace('/\r\n|\r|\n/', eol)
     }
-    return this.content
+    return content
   }
 }

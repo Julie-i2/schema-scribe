@@ -43,3 +43,16 @@ export function findErrorMessage(err: any) {
   }
   return errMess
 }
+
+/**
+ * スネイクケースからキャメルケースに変換する
+ * @param source スネイクケース
+ * @returns キャメルケース
+ */
+export function camelize(source: string): string {
+  return source
+    .replace(/_/g, ' ')
+    .replace(/^(.)|\s+(.)/g, ($1) => $1.toUpperCase())
+    .replace(/\s/g, '')
+    .replace(/^[a-z]/g, (val) => val.toUpperCase())
+}

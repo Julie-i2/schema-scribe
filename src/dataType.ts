@@ -88,6 +88,19 @@ class DataTypeInformation
  * データ種別パーサー
  */
 export abstract class DataTypeFinder {
+  public static create(defaultValues: object, fileExtension: string): DataTypeFinder|null {
+    switch (fileExtension) {
+      case 'php': {
+        return new DataTypeFinderForPHP(defaultValues)
+      }
+      case 'ts': {
+        return new DataTypeFinderForTS(defaultValues)
+      }
+      default: {
+        return null
+      }
+    }
+  }
   protected defaultValues: DefaultValues
 
   /**
@@ -146,7 +159,7 @@ export abstract class DataTypeFinder {
 /**
  * PHP用データ種別パーサー
  */
-export class DataTypeFinderForPHP extends DataTypeFinder {
+class DataTypeFinderForPHP extends DataTypeFinder {
   /** データ型名称リスト */
   private static get dataTypeList(): Map<DataType, string> {
     return new Map<DataType, string>([
@@ -216,7 +229,7 @@ export class DataTypeFinderForPHP extends DataTypeFinder {
 /**
  * TypeScript用データ種別パーサー
  */
-export class DataTypeFinderForTS extends DataTypeFinder
+class DataTypeFinderForTS extends DataTypeFinder
 {
   /** データ型名称リスト */
   private static get dataTypeList(): Map<DataType, string> {

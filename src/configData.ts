@@ -20,7 +20,6 @@ class ConfigReadResult {
 export class ConfigData {
   public label: string
   public database: SettingDataBase
-  public io: SettingIO
   public format: SettingFormat
   public tableList: string[]
   public workspaceName: string
@@ -28,8 +27,7 @@ export class ConfigData {
     config = config || {}
     this.label = config.label || ''
     this.database = new SettingDataBase(config.database)
-    this.io = new SettingIO(config.io, workspaceFolder.uri.fsPath)
-    this.format = new SettingFormat(config.format)
+    this.format = new SettingFormat(config.format, workspaceFolder.uri.fsPath)
     this.tableList = config.tableList || []
     this.workspaceName = workspaceFolder.name
   }
@@ -110,39 +108,32 @@ export class SettingDataBase {
 }
 
 /**
- * 入出力設定
+ * ファイルフォーマット設定
  */
-export class SettingIO {
+export class SettingFormat {
   public outputReset: boolean
   public outputPath: string
   public templatePath: string
   public combine: boolean
-  public combineFileNam: string
+  public combineFileName: string
+  public type: string
+  public className: string
+  public fileExtension: string
+  public ltrimTableName: string
+  public defaultValues: any
+  public eol: string
   constructor(config: any, workspaceRoot: string) {
     config = config || {}
     this.outputReset = !!config.outputReset
     this.outputPath =  (config.outputPath || '${workspaceRoot}\\output').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.templatePath = (config.templatePath || '').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.combine = config?.combine?.enabled ?? false
-    this.combineFileNam = config?.combine?.fileName ?? 'noTitle'
-  }
-}
-
-/**
- * フォーマット設定
- */
-export class SettingFormat {
-  public type: string
-  public className: string
-  public fileExtension: string
-  public ltrimTableName: string
-  public defaultValues: any
-  constructor(config: any) {
-    config = config || {}
+    this.combineFileName = config?.combine?.fileName ?? 'noTitle'
     this.type = config.type || ''
     this.className = config.className || ''
     this.fileExtension = config.fileExtension || ''
     this.ltrimTableName = config.ltrimTableName || ''
     this.defaultValues = config.defaultValues
+    this.eol = config?.eol ?? '\n'
   }
 }

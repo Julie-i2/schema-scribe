@@ -1,5 +1,8 @@
 {
-    "dtomaker.all.title": "Make all DTO",
-    "dtomaker.one.title": "Make DTO",
-    "dtomaker.sqliteone.title": "Make SQLite"
+    "dtomaker.all.title": "Make all issue",
+    "dtomaker.alldto.title": "Make all DTO",
+    "dtomaker.onedto.title": "Make selected DTO",
+    "dtomaker.allcreatesql.title": "Make all CreateSQL",
+    "dtomaker.allsqlite.title": "Make all SQLite",
+    "dtomaker.onesqlite.title": "Make selected SQLite"
 }

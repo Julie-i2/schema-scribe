@@ -1,8 +1,7 @@
 import * as vscode from 'vscode'
-import { DTOMaker } from './dtomaker'
-import { SQLBuilder } from './sqlBuilder'
+import { DTOMakerHandler } from './handler'
 import { ConfigData } from './ConfigData'
-import { findErrorMessage } from './utility';
+import { findErrorMessage } from './utility'
 
 /**
  * VS Code起動時に処理を登録する
@@ -20,106 +19,133 @@ export function activate(context: vscode.ExtensionContext) {
   // The commandId parameter must match the command field in package.json
 
   /**
-   * 設定されたDTOをすべて作成する
+   * 共通処理
+   * @param func
    */
-  const disposableAll = vscode.commands.registerCommand('dtomaker.all', async () => {
+  const commonProcess = async (func: CallableFunction) => {
     try {
       const readResult = ConfigData.read()
-      if (readResult.configs.length === 0) {
-        throw Error('設定ファイルがひとつも登録されていない')
-      }
       for (const errorMessage of readResult.errorMessages) {
         outputChannel.appendLine(errorMessage)
       }
-      for (const config of readResult.configs) {
-        if (config.format.type === 'dto') {
-          await DTOMaker.build(config)
-        }
+      if (readResult.configs.length > 0) {
+        await func(readResult.configs)
+      } else {
+        throw Error('設定ファイルがひとつも登録されていない')
       }
-      vscode.window.showInformationMessage('DTO Maker: Success! Created DTO')
     } catch (err: any) {
       const errMess = findErrorMessage(err)
       if (errMess) {
+        console.error(err)
         outputChannel.appendLine(errMess)
         vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
       }
     }
+  }
+
+  /**
+   * すべての要件を作成
+   */
+  const all = vscode.commands.registerCommand('dtomaker.all', async () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      await DTOMakerHandler.exec(configs)
+      vscode.window.showInformationMessage('DTO Maker: Success! Created All Data')
+    })
   })
 
   /**
-   * 設定されたDTOを1案件分だけ作る
+   * すべてのDTOを作成
    */
-  const disposableOne = vscode.commands.registerCommand('dtomaker.one', () => {
-    try {
-      const pickItems : vscode.QuickPickItem[] = []
-      const readResult = ConfigData.read()
-      for (const config of readResult.configs) {
+  const allDTO = vscode.commands.registerCommand('dtomaker.alldto', async () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      await DTOMakerHandler.execDTO(configs)
+      vscode.window.showInformationMessage('DTO Maker: Success! Created All DTO')
+    })
+  })
+
+  /**
+   * 1つのDTOを作成
+   */
+  const oneDTO = vscode.commands.registerCommand('dtomaker.onedto', () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      const pickItems: vscode.QuickPickItem[] = []
+      for (const config of configs) {
         if (config.format.type === 'dto') {
           pickItems.push(config.toQuickPickItem())
         }
       }
-      vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem|undefined) => {
+      vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
         try {
-          const config = ConfigData.search(choice, readResult.configs)
+          const config = ConfigData.search(choice, configs)
           if (config) {
-            await DTOMaker.build(config)
+            await DTOMakerHandler.execOne(config)
             vscode.window.showInformationMessage('DTO Maker: Success! Created DTO')
           }
         } catch (err) {
           if (choice) {
             outputChannel.append(`[${choice.description}] `)
           }
-          const errMess = findErrorMessage(err)
-          outputChannel.appendLine(errMess)
-          vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
+          throw err
         }
       })
-    } catch (err) {
-      const errMess = findErrorMessage(err)
-      outputChannel.appendLine(errMess)
-      vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
-    }
+    })
   })
 
   /**
-   * 設定されたDTOを1案件分だけ作る
+   * すべてのSQLiteを作成
    */
-  let generateSQLiteSchemaOne = vscode.commands.registerCommand('dtomaker.sqliteone', () => {
-    try {
-      const pickItems : vscode.QuickPickItem[] = []
-      const readResult = ConfigData.read()
-      for (const config of readResult.configs) {
+  const allCreateSQL = vscode.commands.registerCommand('dtomaker.allcreatesql', async () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      await DTOMakerHandler.execCreateSQL(configs)
+      vscode.window.showInformationMessage('DTO Maker: Success! Created All CreateSQL')
+    })
+  })
+
+  /**
+   * すべてのSQLiteを作成
+   */
+  const allSQLite = vscode.commands.registerCommand('dtomaker.allsqlite', async () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      await DTOMakerHandler.execSQLite(configs)
+      vscode.window.showInformationMessage('DTO Maker: Success! Created All SQLite')
+    })
+  })
+
+  /**
+   * 1つのSQLiteを作成
+   */
+  const oneSQLite = vscode.commands.registerCommand('dtomaker.onesqlite', () => {
+    commonProcess(async (configs: ConfigData[]) => {
+      const pickItems: vscode.QuickPickItem[] = []
+      for (const config of configs) {
         if (config.format.type === 'sqlite') {
           pickItems.push(config.toQuickPickItem())
         }
       }
-      vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem|undefined) => {
+      vscode.window.showQuickPick(pickItems).then(async (choice: vscode.QuickPickItem | undefined) => {
         try {
-          const config = ConfigData.search(choice, readResult.configs)
+          const config = ConfigData.search(choice, configs)
           if (config) {
-            await SQLBuilder.build(config)
-            vscode.window.showInformationMessage('SQLite Builder: Success! Created SQL')
+            await DTOMakerHandler.execOne(config)
+            vscode.window.showInformationMessage('SQLite Builder: Success! Created SQLite')
           }
         } catch (err) {
           if (choice) {
             outputChannel.append(`[${choice.description}] `)
           }
-          const errMess = findErrorMessage(err)
-          outputChannel.appendLine(errMess)
-          vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
+          throw err
         }
       })
-    } catch (err) {
-      const errMess = findErrorMessage(err)
-      outputChannel.appendLine(errMess)
-      vscode.window.showErrorMessage(`【DTO Maker】${errMess}`)
-    }
+    })
   })
 
   // 拡張機能解放時に自動的にdisposeする
-  context.subscriptions.push(disposableAll)
-  context.subscriptions.push(disposableOne)
-  context.subscriptions.push(generateSQLiteSchemaOne)
+  context.subscriptions.push(all)
+  context.subscriptions.push(allDTO)
+  context.subscriptions.push(oneDTO)
+  context.subscriptions.push(allCreateSQL)
+  context.subscriptions.push(allSQLite)
+  context.subscriptions.push(oneSQLite)
 }
 
 // this method is called when your extension is deactivated

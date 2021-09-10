@@ -1,219 +1,92 @@
 {
-    "name": "dtomaker",
-    "displayName": "dtomaker",
-    "description": "",
-    "version": "0.0.6",
-    "publisher": "julie",
-    "license": "UNLICENSED",
-    "private": true,
-    "engines": {
-        "vscode": "^1.59.0"
-    },
-    "categories": [
-        "Other"
+  "name": "dtomaker",
+  "displayName": "dtomaker",
+  "description": "",
+  "version": "0.1.0",
+  "publisher": "julie",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "vscode": "^1.59.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:dtomaker.all",
+    "onCommand:dtomaker.alldto",
+    "onCommand:dtomaker.onedto",
+    "onCommand:dtomaker.allcreatesql",
+    "onCommand:dtomaker.allsqlite",
+    "onCommand:dtomaker.onesqlite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Julie-ver5/dtomaker.git"
+  },
+  "main": "./out/extension.js",
+  "icon": "images/icon.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dtomaker.all",
+        "title": "%dtomaker.all.title%",
+        "category": "DTO Maker"
+      },
+      {
+        "command": "dtomaker.alldto",
+        "title": "%dtomaker.alldto.title%",
+        "category": "DTO Maker"
+      },
+      {
+        "command": "dtomaker.onedto",
+        "title": "%dtomaker.onedto.title%",
+        "category": "DTO Maker"
+      },
+      {
+        "command": "dtomaker.allcreatesql",
+        "title": "%dtomaker.allcreatesql.title%",
+        "category": "DTO Maker"
+      },
+      {
+        "command": "dtomaker.allsqlite",
+        "title": "%dtomaker.allsqlite.title%",
+        "category": "DTO Maker"
+      },
+      {
+        "command": "dtomaker.onesqlite",
+        "title": "%dtomaker.onesqlite.title%",
+        "category": "DTO Maker"
+      }
     ],
-    "activationEvents": [
-        "onCommand:dtomaker.all",
-        "onCommand:dtomaker.one",
-        "onCommand:dtomaker.sqliteone"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Julie-ver5/dtomaker.git"
-    },
-    "main": "./out/extension.js",
-    "icon": "images/icon.png",
-    "contributes": {
-        "commands": [
-            {
-                "command": "dtomaker.all",
-                "title": "%dtomaker.all.title%",
-                "category": "DTO Maker"
-            },
-            {
-                "command": "dtomaker.one",
-                "title": "%dtomaker.one.title%",
-                "category": "DTO Maker"
-            },
-            {
-                "command": "dtomaker.sqliteone",
-                "title": "%dtomaker.sqliteone.title%",
-                "category": "DTO Maker"
-            }
-        ],
-        "configuration": [
-            {
-                "title": "DTOMaker configuration",
-                "properties": {
-                    "DTOMaker.configs": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "title": "DTOの設定",
-                            "properties": {
-                                "label": {
-                                    "type": "string",
-                                    "default": "new label",
-                                    "description": "ラベル"
-                                },
-                                "database": {
-                                    "type": "object",
-                                    "title": "DataBase設定",
-                                    "properties": {
-                                        "host": {
-                                            "type": "string",
-                                            "default": "localhost",
-                                            "description": "データベースのホスト"
-                                        },
-                                        "port": {
-                                            "type": "integer",
-                                            "default": 3306,
-                                            "description": "データベースのポート"
-                                        },
-                                        "user": {
-                                            "type": "string",
-                                            "default": "root",
-                                            "description": "データベースのユーザー名"
-                                        },
-                                        "password": {
-                                            "type": "string",
-                                            "default": "",
-                                            "description": "データベースのパスワード"
-                                        },
-                                        "database": {
-                                            "type": "string",
-                                            "default": "",
-                                            "description": "データベース名"
-                                        }
-                                    }
-                                },
-                                "io": {
-                                    "type": "object",
-                                    "title": "生成ファイル設定",
-                                    "properties": {
-                                        "folderName": {
-                                            "type": "string",
-                                            "default": "Folder Name",
-                                            "description": "プロジェクトフォルダ名"
-                                        },
-                                        "outputPath": {
-                                            "type": "string",
-                                            "default": "${workspaceRoot}\\output",
-                                            "description": "出力先のパス"
-                                        },
-                                        "outputReset": {
-                                            "type": "boolean",
-                                            "default": true,
-                                            "description": "DTO生成前に出力先フォルダの中身をすべて削除する"
-                                        },
-                                        "templatePath": {
-                                            "type": "string",
-                                            "default": "${workspaceRoot}\\template.txt",
-                                            "description": "テンプレートファイルのパス"
-                                        }
-                                    }
-                                },
-                                "format": {
-                                    "type": "object",
-                                    "title": "フォーマット設定",
-                                    "properties": {
-                                        "type": {
-                                            "type": "string",
-                                            "default": "dto",
-                                            "description": "種別(`dto`,`sqlite`)"
-                                        },
-                                        "className": {
-                                            "type": "string",
-                                            "default": "${className}DTO",
-                                            "description": "DTOクラス名のPrefix・Suffix"
-                                        },
-                                        "fileExtension": {
-                                            "type": "string",
-                                            "default": "php",
-                                            "description": "DTOクラスファイルの拡張子"
-                                        },
-                                        "ltrimTableName": {
-                                            "type": "string",
-                                            "default": "table_",
-                                            "description": "テーブル名からマッチした先頭文字を取り外す"
-                                        },
-                                        "defaultValues": {
-                                            "type": "object",
-                                            "title": "デフォルト値一覧",
-                                            "properties": {
-                                                "int": {
-                                                    "type": "string",
-                                                    "default": "0",
-                                                    "description": "int型のデフォルト値"
-                                                },
-                                                "float": {
-                                                    "type": "string",
-                                                    "default": "0.0",
-                                                    "description": "float型のデフォルト値"
-                                                },
-                                                "string": {
-                                                    "type": "string",
-                                                    "default": "''",
-                                                    "description": "string型のデフォルト値"
-                                                },
-                                                "datetime": {
-                                                    "type": "string",
-                                                    "default": "'0000-00-00 00:00:00'",
-                                                    "description": "DateTime型のデフォルト値"
-                                                },
-                                                "date": {
-                                                    "type": "string",
-                                                    "default": "'0000-00-00'",
-                                                    "description": "Date型のデフォルト値"
-                                                },
-                                                "time": {
-                                                    "type": "string",
-                                                    "default": "'00:00:00'",
-                                                    "description": "Time型のデフォルト値"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "tableList": {
-                                    "type": "array",
-                                    "title": "テーブル一覧",
-                                    "default": [],
-                                    "items": {
-                                        "type": "string",
-                                        "default": "",
-                                        "description": "テーブル名"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "yarn run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "yarn run compile && yarn run lint",
-        "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-        "@types/glob": "^7.1.3",
-        "@types/mocha": "^8.2.2",
-        "@types/node": "14.x",
-        "@types/vscode": "^1.59.0",
-        "@typescript-eslint/eslint-plugin": "^4.26.0",
-        "@typescript-eslint/parser": "^4.26.0",
-        "eslint": "^7.27.0",
-        "glob": "^7.1.7",
-        "mocha": "^8.4.0",
-        "typescript": "^4.3.2",
-        "vscode-test": "^1.5.2"
-    },
-    "dependencies": {
-      "mysql2": "^2.3.0"
-    }
+    "configuration": [
+      {
+        "title": "DTOMaker configuration"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.59.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "eslint": "^7.27.0",
+    "glob": "^7.1.7",
+    "mocha": "^8.4.0",
+    "typescript": "^4.3.2",
+    "vscode-test": "^1.5.2"
+  },
+  "dependencies": {
+    "mysql2": "^2.3.0"
+  }
 }
