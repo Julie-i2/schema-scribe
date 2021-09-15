@@ -141,7 +141,8 @@ class DTOMakerProcessor {
   public async buildCreateSQL(): Promise<void> {
     this.deleteFiles()
     for (const table of this.tableNames) {
-      const content = await this.dbAccessor.getTableCreate(table)
+      let content = await this.dbAccessor.getTableCreate(table)
+      content = content.replace(/(AUTO_INCREMENT)=\d+/g, '$1=1')
       this.output({ fileName: table, content, fileExtension: 'sql' })
     }
   }
