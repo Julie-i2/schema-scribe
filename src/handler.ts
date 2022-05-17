@@ -170,7 +170,7 @@ class DTOMakerProcessor {
     const name = fileName ?? this.config.format.combineFileName
     const nameOpt = this.optimizeFileName(name)
     const extension = fileExtension ?? this.config.format.fileExtension
-    fs.writeFileSync(`${path}\\${nameOpt}.${extension}`, content ?? '', 'utf8')
+    fs.writeFileSync(`${path}/${nameOpt}.${extension}`, content ?? '', 'utf8')
   }
 
   /**
@@ -180,7 +180,7 @@ class DTOMakerProcessor {
     if (this.config.format.outputReset) {
       const fileNames = fs.readdirSync(this.config.format.outputPath)
       for (const fileName of fileNames) {
-        fs.unlinkSync(`${this.config.format.outputPath}\\${fileName}`)
+        fs.unlinkSync(`${this.config.format.outputPath}/${fileName}`)
       }
     }
   }

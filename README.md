@@ -33,15 +33,15 @@ For example:
         // データベースのパスワード
         "password": "pass",
         // データベース名
-        "databse": "system_name",
+        "database": "system_name",
       },
       "format": {
         // 出力先のパス
-        "outputPath": "${workspaceRoot}\\classes\\IO\\DataBase\\DTO",
+        "outputPath": "${workspaceRoot}/classes/IO/DataBase/DTO",
         // DTO生成前に出力先フォルダの中身をすべて削除する [default true]
         "outputReset": true,
         // テンプレートファイルのパス
-        "templatePath": "${workspaceRoot}\\.vscode\\dto-template.txt",
+        "templatePath": "${workspaceRoot}/.vscode/dto-template.txt",
         // 出力を1つのファイルにまとめる [default false]
         "combine": false,
         // 出力を1つのファイルにまとめた際のファイル名

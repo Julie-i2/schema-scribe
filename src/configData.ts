@@ -55,7 +55,7 @@ export class ConfigData {
     const errMessList: string[] = []
     for (const folder of vscode.workspace.workspaceFolders) {
       try {
-        const configFilePath = `${folder.uri.fsPath}\\.dtomaker\\config.json`
+        const configFilePath = `${folder.uri.fsPath}/.dtomaker/config.json`
         const configText = readFileSync(configFilePath, 'utf8')
         const configList = JSON.parse(configText)['DTOMaker.configs'] || []
         for (const configJSON of configList) {
@@ -125,7 +125,7 @@ export class SettingFormat {
   constructor(config: any, workspaceRoot: string) {
     config = config || {}
     this.outputReset = !!config.outputReset
-    this.outputPath =  (config.outputPath || '${workspaceRoot}\\output').replace(/\${workspaceRoot}/g, workspaceRoot)
+    this.outputPath =  (config.outputPath || '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.templatePath = (config.templatePath || '').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.combine = config?.combine?.enabled ?? false
     this.combineFileName = config?.combine?.fileName ?? 'noTitle'
