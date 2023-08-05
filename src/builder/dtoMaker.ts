@@ -1,7 +1,8 @@
-import { SettingFormat } from './ConfigData'
-import { DataTypeFinder } from './dataType'
-import { DBTable, DBTableColumn, DBTableIndex } from './dbAccessor'
-import { camelize } from './utility'
+import { SettingFormat } from '../application/ConfigData'
+import DataTypeFinder from './DataTypeFinder'
+import DataTypeFinderBase from './DataTypeFinderBase'
+import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
+import { camelize } from '../application/Utility'
 
 
 /** 正規表現パターン：クラス名 */
@@ -67,7 +68,7 @@ export class DTOMaker
   private template: string
   private fieldTemplates: string[] = []
   private indexTemplates: string[] = []
-  private dataTypeFinder: DataTypeFinder|null
+  private dataTypeFinder: DataTypeFinderBase|null
   private classNameFormat: string
   private ltrimTableName: string
 
@@ -80,14 +81,14 @@ export class DTOMaker
     // テンプレートからフィールドテンプレートとインデックステンプレートを抜き出す
     let fieldCounter = 1
     template = template.replace(PATTERN_FIELD_LIST_WHOLE, (match) => {
-      const fieldListContents = match.match(PATTERN_FIELD_LIST_PARTS) || []
-      this.fieldTemplates.push(fieldListContents[2] || '')
+      const fieldListContents = match.match(PATTERN_FIELD_LIST_PARTS) ?? []
+      this.fieldTemplates.push(fieldListContents[2] ?? '')
       return `FIELD_LIST_NO_${fieldCounter++}`
     })
     let indexCounter = 1
     template = template.replace(PATTERN_INDEX_LIST_WHOLE, (match) => {
-      const indexListContents = match.match(PATTERN_INDEX_LIST_PARTS) || []
-      this.indexTemplates.push(indexListContents[2] || '')
+      const indexListContents = match.match(PATTERN_INDEX_LIST_PARTS) ?? []
+      this.indexTemplates.push(indexListContents[2] ?? '')
       return `INDEX_LIST_NO_${indexCounter++}`
     })
     this.template = template
@@ -98,10 +99,10 @@ export class DTOMaker
 
   /**
    * DBテーブル情報からDTO構築機を取得する
-   * @param {DBTable} dbTable テーブル名
+   * @param {DBTableBase} dbTable テーブル名
    * @returns {DTOBuilder}
    */
-  public createBuilder(dbTable: DBTable): DTOBuilder {
+  public createBuilder(dbTable: DBTableBase): DTOBuilder {
     return new DTOBuilder(this, dbTable)
   }
 
@@ -117,7 +118,7 @@ export class DTOMaker
     return this.indexTemplates
   }
 
-  public getDataTypeFinder(): DataTypeFinder|null {
+  public getDataTypeFinder(): DataTypeFinderBase|null {
     return this.dataTypeFinder
   }
 
@@ -149,7 +150,7 @@ class DTOBuilder {
   /** クラス名 */
   private className: string
   /** テーブル情報 */
-  private tableInfo: DBTable
+  private tableInfo: DBTableBase
   /** プライマリフィールド名 */
   private primaryKeys: string[] = []
   /** 置き換えフィールド保持配列 */
@@ -162,48 +163,52 @@ class DTOBuilder {
    * @param maker 共通部メーカー
    * @param tableInfo DBテーブル情報
    */
-  public constructor(maker: DTOMaker, tableInfo: DBTable) {
+  public constructor(maker: DTOMaker, tableInfo: DBTableBase) {
     this.maker = maker
-    this.className = maker.createClassName(tableInfo.name)
+    this.className = maker.createClassName(tableInfo.getName())
     this.tableInfo = tableInfo
   }
 
   /**
    * フィールド情報追加
-   * @param array $aFieldInfo フィールド情報配列
+   * @param fieldInfo フィールド情報
    */
-  public addField(fieldInfo: DBTableColumn): void {
-    if (fieldInfo.key === 'PRI') {
-      this.primaryKeys.push(fieldInfo.field)
+  public addField(fieldInfo: DBTableColumnBase): void {
+    if (fieldInfo.isPrimary()) {
+      this.primaryKeys.push(fieldInfo.getField())
     }
     const dataTypeFinder = this.maker.getDataTypeFinder()
     const dataType = dataTypeFinder?.find(fieldInfo)
     for (const [index, fieldTemplate] of this.maker.getFieldTemplates().entries()) {
       let tmpField = fieldTemplate
-      tmpField = tmpField.replace(PATTERN_FIELD_COMMENT, fieldInfo.comment)
-      tmpField = tmpField.replace(PATTERN_FIELD_TYPE, fieldInfo.type)
+      tmpField = tmpField.replace(PATTERN_FIELD_COMMENT, fieldInfo.getComment())
+      tmpField = tmpField.replace(PATTERN_FIELD_TYPE, fieldInfo.getType())
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_TYPE, dataType?.label ?? '')
-      tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.field)
-      tmpField = tmpField.replace(PATTERN_FIELD_NAME_UPPERCASE, fieldInfo.field.toUpperCase())
-      tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.null)
-      tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, fieldInfo.default ?? 'n/a')
+      tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.getField())
+      tmpField = tmpField.replace(PATTERN_FIELD_NAME_UPPERCASE, fieldInfo.getField().toUpperCase())
+      tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.getNull())
+      tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, fieldInfo.getDefault() ?? 'n/a')
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')
-      tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.key)
-      tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.extra)
+      tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.getKey())
+      tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.getExtra())
       const list = this.replaceFieldMap.get(index) ?? []
       this.replaceFieldMap.set(index, list)
       list.push(tmpField)
     }
   }
 
-  public addIndex(indexInfo: DBTableIndex): void {
+  /**
+   * インデックス情報追加
+   * @param indexInfo インデックス情報
+   */
+  public addIndex(indexInfo: DBTableIndexBase): void {
     for (const [index, indexTemplate] of this.maker.getIndexTemplates().entries()) {
       let tmpIndex = indexTemplate
-      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NAME, indexInfo.keyName)
-      tmpIndex = tmpIndex.replace(PATTERN_INDEX_COLUMNS, indexInfo.columnName)
-      tmpIndex = tmpIndex.replace(PATTERN_INDEX_ORDER, indexInfo.seqInIndex.toString())
-      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NULLABLE, indexInfo.nullable || 'NO')
-      tmpIndex = tmpIndex.replace(PATTERN_INDEX_UNIQUE, Boolean(indexInfo.nonUnique) ? 'NO' : 'YES')
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NAME, indexInfo.getKeyName())
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_COLUMNS, indexInfo.getColumnName())
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_ORDER, indexInfo.getSeqInIndex().toString())
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_NULLABLE, indexInfo.getNullable() ?? 'NO')
+      tmpIndex = tmpIndex.replace(PATTERN_INDEX_UNIQUE, indexInfo.isUnique() ? 'YES' : 'NO')
       const list = this.replaceIndexMap.get(index) ?? []
       this.replaceIndexMap.set(index, list)
       list.push(tmpIndex)
@@ -223,13 +228,13 @@ class DTOBuilder {
    * @param eol 改行コード
    */
   public generateContent(eol: string | null = null): string {
-    const comment = this.tableInfo.comment.replace(/(\r\n|\n)/g, '$1 * ')
+    const comment = this.tableInfo.getComment().replace(/(\r\n|\n)/g, '$1 * ')
     let content = this.maker.getContent()
     content = content.replace(PATTERN_CLASS_NAME, this.className)
     content = content.replace(PATTERN_CLASS_DESCRIPTION, comment)
-    content = content.replace(PATTERN_TABLE_NAME, this.tableInfo.name)
-    content = content.replace(PATTERN_TABLE_COMMENT, this.tableInfo.comment)
-    content = content.replace(PATTERN_ENGINE, this.tableInfo.engine)
+    content = content.replace(PATTERN_TABLE_NAME, this.tableInfo.getName())
+    content = content.replace(PATTERN_TABLE_COMMENT, this.tableInfo.getComment())
+    content = content.replace(PATTERN_ENGINE, this.tableInfo.getEngine())
     content = content.replace(PATTERN_PRIMARY_ID, this.primaryKeys[0] ?? '')
     content = content.replace(PATTERN_PRIMARY_IDS, this.primaryKeys.join(','))
     content = content.replace(PATTERN_PRIMARY_IDS_SINGLE_QUOTE, this.primaryKeys.map(key => `'${key}'`).join(','))

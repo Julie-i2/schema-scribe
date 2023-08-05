@@ -111,6 +111,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.14.tgz#6fda9785b41570eb628bac27be4b602769a3f938"
   integrity sha512-rsAj2u8Xkqfc332iXV12SqIsjVi07H479bOP4q94NAcjzmAvapumEhuVIt53koEf7JFrpjgNKjBga5Pnn/GL8A==
 
+"@types/oracledb@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@types/oracledb/-/oracledb-5.3.0.tgz#7abba78fc8dcd54863dda465b73076391ca8f779"
+  integrity sha512-j197SWt6yWTtymJK3AhzlsrQr2AWk0Da5ngyS4MnixKQA3itMCuC6+5h5X99sSmZQeb9229WRShkqS80v75YDw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/vscode@^1.59.0":
   version "1.59.0"
   resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.59.0.tgz#11c93f5016926126bf30b47b9ece3bd617eeef31"
@@ -1171,6 +1178,11 @@ optionator@^0.9.1:
     prelude-ls "^1.2.1"
     type-check "^0.4.0"
     word-wrap "^1.2.3"
+
+oracledb@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/oracledb/-/oracledb-6.0.3.tgz#118cfe1bafdfc97f0e73f328e2b369511d9a3e78"
+  integrity sha512-szsaTgEcVpmGwi5sCHLXvvpoL5ZJIE69wSOBpclsGO5XX6QMce6KRr+R+t68ihns+8MV4A0J4oeR6efCfxScrg==
 
 p-limit@^3.0.2:
   version "3.1.0"

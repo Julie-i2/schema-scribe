@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
-import { DTOMakerHandler } from './handler'
-import { ConfigData } from './ConfigData'
-import { findErrorMessage } from './utility'
+import { DTOMakerHandler } from './application/Handler'
+import { ConfigData } from './application/ConfigData'
+import { findErrorMessage } from './application/Utility'
 
 /**
  * VS Code起動時に処理を登録する
@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "dtomaker" is now active!')
+  console.log('Congratulations, your extension "DTO Maker" is now active!')
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand

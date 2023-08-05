@@ -1,4 +1,4 @@
-import { SQLGeneratorBase, ConvertItem } from './sqlBuilderBase'
+import { SQLGeneratorBase, ConvertItem } from './SQLBuilderBase'
 
 /**
  * SQLiteファイル生成クラス
@@ -38,13 +38,14 @@ export class SQLiteGenerator extends SQLGeneratorBase {
     for (const [tableName, tableColumns] of this.tables) {
       const fields: string[] = []
       for (const tableColumn of tableColumns) {
-        const typeWord = this.converter.type(tableColumn.type)
-        const extraWord = this.converter.extra(tableColumn.extra)
-        const nullWord = this.converter.null(tableColumn.null)
+        const typeWord = this.converter.type(tableColumn.getType())
+        const extraWord = this.converter.extra(tableColumn.getExtra())
+        const nullWord = this.converter.null(tableColumn.getNull())
         // @todo 複合キーをどうするか考える
         //const keyWord = Converter.instance.key(tableColumn.key)
         const keyWord = ''
-        fields.push(`  "${tableColumn.field}" ${typeWord}${nullWord}${keyWord}${extraWord}`)
+        const field = tableColumn.getField()
+        fields.push(`  "${field}" ${typeWord}${nullWord}${keyWord}${extraWord}`)
       }
       tableSQLs.push(
         `CREATE TABLE IF NOT EXISTS "${tableName}" (`,

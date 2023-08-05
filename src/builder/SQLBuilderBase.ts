@@ -1,11 +1,11 @@
-import { DBTableColumn } from './dbAccessor'
+import { DBTableColumnBase } from '../db/DBResultBase'
 
 /**
  * SQLファイル生成クラス
  */
  export abstract class SQLGeneratorBase {
   /** 構文ジェネレーターリスト */
-  protected tables: Map<string, DBTableColumn[]> = new Map()
+  protected tables: Map<string, DBTableColumnBase[]> = new Map()
   protected converter: Converter = new Converter()
 
   /**
@@ -13,7 +13,7 @@ import { DBTableColumn } from './dbAccessor'
    * @param {string} tableName テーブル名
    * @param {DBTableColumn[]} tableColumns テーブルカラム情報リスト
    */
-  public addTable(tableName: string, tableColumns: DBTableColumn[]) {
+  public addTable(tableName: string, tableColumns: DBTableColumnBase[]) {
     this.tables.set(tableName, tableColumns)
   }
 

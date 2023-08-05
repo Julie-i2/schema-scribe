@@ -1,9 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { ConfigData } from './ConfigData'
-import { DBAccessor } from './dbAccessor'
-import { DTOMaker } from './dtomaker'
-import { SQLiteGenerator } from './sqlBuilderForSqlite'
+import DBAccessor from '../db/DBAccessor'
+import DBAccessorBase from '../db/DBAccessorBase'
+import { DTOMaker } from '../builder/dtoMaker'
+import { SQLiteGenerator } from '../builder/SQLBuilderForSqlite'
 
 /**
  * ハンドラー
@@ -85,7 +86,7 @@ export class DTOMakerHandler {
  */
 class DTOMakerProcessor {
   private config: ConfigData
-  private dbAccessor: DBAccessor
+  private dbAccessor: DBAccessorBase
   private tableNames: string[] = []
 
   /**
@@ -94,7 +95,7 @@ class DTOMakerProcessor {
    */
   public constructor(config: ConfigData) {
     this.config = config
-    this.dbAccessor = new DBAccessor(config.database)
+    this.dbAccessor = DBAccessor.create(config.database)
     this.checkDirectory(config.format.outputPath)
   }
 
@@ -102,6 +103,7 @@ class DTOMakerProcessor {
    * テーブル名リストを取得
    */
   public async loadTargetDBTables(): Promise<void> {
+    await this.dbAccessor.connection();
     this.tableNames = (this.config.tableList.length > 0) ? this.config.tableList : await this.dbAccessor.getTables()
   }
 
@@ -126,8 +128,8 @@ class DTOMakerProcessor {
       }
       const fileName = (this.config.format.combine) ? this.config.format.combineFileName : dtoBuilder.getClassName()
       const content = dtoBuilder.generateContent(this.config.format.eol)
-      const previousContnet = contentMap.get(fileName) ?? ''
-      contentMap.set(fileName, `${previousContnet}${content}`)
+      const previousContent = contentMap.get(fileName) ?? ''
+      contentMap.set(fileName, `${previousContent}${content}`)
     }
     this.deleteFiles()
     for (const [fileName, content] of contentMap) {

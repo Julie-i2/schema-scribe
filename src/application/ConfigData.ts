@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { readFileSync } from 'fs'
-import { findErrorMessage } from './utility'
+import { findErrorMessage } from './Utility'
 
 /**
  * 設定データ読み込み結果
@@ -24,11 +24,11 @@ export class ConfigData {
   public tableList: string[]
   public workspaceName: string
   public constructor(config: any, workspaceFolder: vscode.WorkspaceFolder) {
-    config = config || {}
-    this.label = config.label || ''
+    config = config ?? {}
+    this.label = config.label ?? ''
     this.database = new SettingDataBase(config.database)
     this.format = new SettingFormat(config.format, workspaceFolder.uri.fsPath)
-    this.tableList = config.tableList || []
+    this.tableList = config.tableList ?? []
     this.workspaceName = workspaceFolder.name
   }
 
@@ -57,7 +57,7 @@ export class ConfigData {
       try {
         const configFilePath = `${folder.uri.fsPath}/.dtomaker/config.json`
         const configText = readFileSync(configFilePath, 'utf8')
-        const configList = JSON.parse(configText)['DTOMaker.configs'] || []
+        const configList = JSON.parse(configText)['DTOMaker.configs'] ?? []
         for (const configJSON of configList) {
           const configData = new ConfigData(configJSON, folder)
           configs.push(configData)
@@ -77,7 +77,7 @@ export class ConfigData {
    * @param hashList 設定データリスト
    */
   public static search(needle: vscode.QuickPickItem|undefined, hashList: ConfigData[]): ConfigData|null {
-    const targetA = JSON.stringify(needle || {})
+    const targetA = JSON.stringify(needle ?? {})
     for (const hash of hashList) {
       const targetB = JSON.stringify(hash.toQuickPickItem())
       if (targetA === targetB) {
@@ -97,13 +97,15 @@ export class SettingDataBase {
   public user: string
   public password: string
   public database: string
+  public application: string
   constructor(config: any) {
-    config = config || {}
-    this.host = config.host || 'localhost'
-    this.port = config.port || 3306
-    this.user = config.user || 'root'
-    this.password = config.password || ''
-    this.database = config.database || ''
+    config = config ?? {}
+    this.host = config.host ?? 'localhost'
+    this.port = config.port ?? 3306
+    this.user = config.user ?? 'root'
+    this.password = config.password ?? ''
+    this.database = config.database ?? ''
+    this.application = config.application ?? ''
   }
 }
 
@@ -123,16 +125,16 @@ export class SettingFormat {
   public defaultValues: any
   public eol: string
   constructor(config: any, workspaceRoot: string) {
-    config = config || {}
+    config = config ?? {}
     this.outputReset = !!config.outputReset
-    this.outputPath =  (config.outputPath || '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
-    this.templatePath = (config.templatePath || '').replace(/\${workspaceRoot}/g, workspaceRoot)
+    this.outputPath =  (config.outputPath ?? '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
+    this.templatePath = (config.templatePath ?? '').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.combine = config?.combine?.enabled ?? false
     this.combineFileName = config?.combine?.fileName ?? 'noTitle'
-    this.type = config.type || ''
-    this.className = config.className || ''
-    this.fileExtension = config.fileExtension || ''
-    this.ltrimTableName = config.ltrimTableName || ''
+    this.type = config.type ?? ''
+    this.className = config.className ?? ''
+    this.fileExtension = config.fileExtension ?? ''
+    this.ltrimTableName = config.ltrimTableName ?? ''
     this.defaultValues = config.defaultValues
     this.eol = config?.eol ?? '\n'
   }

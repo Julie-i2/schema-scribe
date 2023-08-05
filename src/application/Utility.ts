@@ -56,3 +56,12 @@ export function camelize(source: string): string {
     .replace(/\s/g, '')
     .replace(/^[a-z]/g, (val) => val.toUpperCase())
 }
+
+/**
+ * オブジェクト型判定
+ * @param value 値
+ * @returns 成否結果
+ */
+export function isObject(value: unknown): value is object {
+  return typeof value === 'object' && value !== null
+}
