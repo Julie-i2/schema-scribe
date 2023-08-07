@@ -6,6 +6,7 @@
       "AUTOINCREMENT",
       "datetime",
       "dtomaker",
+      "instantclient",
       "ltrim",
       "mediumint",
       "oracledb",

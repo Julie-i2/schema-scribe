@@ -118,11 +118,11 @@ class DTOMakerProcessor {
     for (const tableName of this.tableNames) {
       const dbTable = await this.dbAccessor.getTableInfo(tableName)
       const dtoBuilder = dtoMaker.createBuilder(dbTable)
-      const tableColumns = await this.dbAccessor.getTableColumns(dbTable.name)
+      const tableColumns = await this.dbAccessor.getTableColumns(dbTable.getName())
       for (const dbTableColumn of tableColumns) {
         dtoBuilder.addField(dbTableColumn)
       }
-      const tableIndexes = await this.dbAccessor.getTableIndexes(dbTable.name)
+      const tableIndexes = await this.dbAccessor.getTableIndexes(dbTable.getName())
       for (const tableIndex of tableIndexes) {
         dtoBuilder.addIndex(tableIndex)
       }

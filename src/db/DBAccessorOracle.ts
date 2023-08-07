@@ -1,4 +1,5 @@
 import * as oracledb from 'oracledb'
+import { SettingDataBase } from '../application/ConfigData'
 import { isObject } from '../application/Utility'
 import DBAccessorBase from './DBAccessorBase'
 import { DBTableOracle, DBTableIndexOracle, DBTableColumnOracle } from './DBResultOracle'
@@ -8,6 +9,15 @@ import { DBTableOracle, DBTableIndexOracle, DBTableColumnOracle } from './DBResu
  */
 export default class DBAccessorMySQL extends DBAccessorBase {
   private con: oracledb.Connection|null = null
+
+  /**
+   * コンストラクタ
+   * @param config DB接続情報
+   */
+  public constructor(config: SettingDataBase) {
+    super(config)
+    oracledb.initOracleClient({ libDir: '../../lib/instantclient_21_10' })
+  }
 
   /**
    * コネクション

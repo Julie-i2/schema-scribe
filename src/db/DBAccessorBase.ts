@@ -1,5 +1,4 @@
 import { SettingDataBase } from '../application/ConfigData'
-import DBAccessorMySQL from './DBAccessorMySQL'
 import { DBTableBase, DBTableIndexBase, DBTableColumnBase } from './DBResultBase'
 
 /**
