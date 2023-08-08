@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
    */
   const all = vscode.commands.registerCommand('dtomaker.all', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await DTOMakerHandler.exec(configs)
+      await DTOMakerHandler.exec(configs, context)
       vscode.window.showInformationMessage('DTO Maker: Success! Created All Data')
     })
   })
@@ -58,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
    */
   const allDTO = vscode.commands.registerCommand('dtomaker.alldto', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await DTOMakerHandler.execDTO(configs)
+      await DTOMakerHandler.execDTO(configs, context)
       vscode.window.showInformationMessage('DTO Maker: Success! Created All DTO')
     })
   })
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
           const config = ConfigData.search(choice, configs)
           if (config) {
-            await DTOMakerHandler.execOne(config)
+            await DTOMakerHandler.execOne(config, context)
             vscode.window.showInformationMessage('DTO Maker: Success! Created DTO')
           }
         } catch (err) {
@@ -96,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
    */
   const allCreateSQL = vscode.commands.registerCommand('dtomaker.allcreatesql', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await DTOMakerHandler.execCreateSQL(configs)
+      await DTOMakerHandler.execCreateSQL(configs, context)
       vscode.window.showInformationMessage('DTO Maker: Success! Created All CreateSQL')
     })
   })
@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
    */
   const allSQLite = vscode.commands.registerCommand('dtomaker.allsqlite', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await DTOMakerHandler.execSQLite(configs)
+      await DTOMakerHandler.execSQLite(configs, context)
       vscode.window.showInformationMessage('DTO Maker: Success! Created All SQLite')
     })
   })
@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
           const config = ConfigData.search(choice, configs)
           if (config) {
-            await DTOMakerHandler.execOne(config)
+            await DTOMakerHandler.execOne(config, context)
             vscode.window.showInformationMessage('SQLite Builder: Success! Created SQLite')
           }
         } catch (err) {

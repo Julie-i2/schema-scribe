@@ -1,3 +1,4 @@
+import * as vscode from 'vscode'
 import { SettingDataBase } from '../application/ConfigData'
 import { DBTableBase, DBTableIndexBase, DBTableColumnBase } from './DBResultBase'
 
@@ -10,8 +11,9 @@ export default abstract class DBAccessorBase {
   /**
    * コンストラクタ
    * @param config DB接続情報
+   * @param context VSCode拡張機能情報
    */
-  public constructor(config: SettingDataBase) {
+  public constructor(config: SettingDataBase, context: vscode.ExtensionContext) {
     this.config = config;
   }
 

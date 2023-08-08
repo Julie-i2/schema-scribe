@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as vscode from 'vscode'
 import { ConfigData } from './ConfigData'
 import DBAccessor from '../db/DBAccessor'
 import DBAccessorBase from '../db/DBAccessorBase'
@@ -14,21 +15,23 @@ export class DTOMakerHandler {
   /**
    * 処理を受け付ける
    * @param configs
+   * @param context VSCode拡張機能情報
    */
-  public static async exec(configs: ConfigData[]): Promise<void> {
+  public static async exec(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
     for (const config of configs) {
-      await this.execOne(config)
+      await this.execOne(config, context)
     }
   }
 
   /**
    * DTO要件だけの処理を受け付ける
    * @param configs
+   * @param context VSCode拡張機能情報
    */
-  public static async execDTO(configs: ConfigData[]): Promise<void> {
+  public static async execDTO(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
     for (const config of configs) {
       if (config.format.type === 'dto') {
-        await this.execOne(config)
+        await this.execOne(config, context)
       }
     }
   }
@@ -36,11 +39,12 @@ export class DTOMakerHandler {
   /**
    * CREATE SQL要件だけの処理を受け付ける
    * @param configs
+   * @param context VSCode拡張機能情報
    */
-  public static async execCreateSQL(configs: ConfigData[]): Promise<void> {
+  public static async execCreateSQL(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
     for (const config of configs) {
       if (config.format.type === 'create') {
-        await this.execOne(config)
+        await this.execOne(config, context)
       }
     }
   }
@@ -48,11 +52,12 @@ export class DTOMakerHandler {
   /**
    * SQLite要件だけの処理を受け付ける
    * @param configs
+   * @param context VSCode拡張機能情報
    */
-  public static async execSQLite(configs: ConfigData[]): Promise<void> {
+  public static async execSQLite(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
     for (const config of configs) {
       if (config.format.type === 'sqlite') {
-        await this.execOne(config)
+        await this.execOne(config, context)
       }
     }
   }
@@ -60,9 +65,10 @@ export class DTOMakerHandler {
   /**
    * 1件だけ処理を受け付ける
    * @param config
+   * @param context VSCode拡張機能情報
    */
-  public static async execOne(config: ConfigData): Promise<void> {
-    const processor = new DTOMakerProcessor(config)
+  public static async execOne(config: ConfigData, context: vscode.ExtensionContext): Promise<void> {
+    const processor = new DTOMakerProcessor(config, context)
     await processor.loadTargetDBTables()
     switch (config.format.type) {
       case 'dto': {
@@ -92,10 +98,11 @@ class DTOMakerProcessor {
   /**
    * コンストラクタ
    * @param config 設定データ
+   * @param context VSCode拡張機能情報
    */
-  public constructor(config: ConfigData) {
+  public constructor(config: ConfigData, context: vscode.ExtensionContext) {
     this.config = config
-    this.dbAccessor = DBAccessor.create(config.database)
+    this.dbAccessor = DBAccessor.create(config.database, context)
     this.checkDirectory(config.format.outputPath)
   }
 
