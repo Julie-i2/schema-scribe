@@ -117,7 +117,7 @@ export default class DBAccessorMySQL extends DBAccessorBase {
     return new Promise((resolve, reject) => {
       if (this.con) {
         const sql = [
-          'SELECT a."CONSTRAINT_NAME", a."POSITION", a."COLUMN_NAME", c."UNIQUENESS"',
+          'SELECT a."CONSTRAINT_NAME", a."POSITION", a."COLUMN_NAME", c."UNIQUENESS", b."CONSTRAINT_TYPE"',
           'FROM "USER_CONS_COLUMNS" a',
           'LEFT JOIN "USER_CONSTRAINTS" b ON a."CONSTRAINT_NAME"=b."CONSTRAINT_NAME" AND b."TABLE_NAME"=:table_name_b',
           'LEFT JOIN "USER_INDEXES" c ON c."INDEX_NAME"=a."CONSTRAINT_NAME" AND c."TABLE_NAME"=:table_name_c',
@@ -147,14 +147,13 @@ export default class DBAccessorMySQL extends DBAccessorBase {
     return new Promise((resolve, reject) => {
       if (this.con) {
         const sql = [
-          'SELECT a."COLUMN_NAME", a."DATA_TYPE", a."NULLABLE", a."DATA_DEFAULT", b."COMMENTS", d."CONSTRAINT_TYPE"',
+          'SELECT a."COLUMN_NAME", a."DATA_TYPE", a."NULLABLE", a."DATA_DEFAULT", b."COMMENTS"',
           'FROM "USER_TAB_COLUMNS" a',
           'LEFT JOIN "USER_COL_COMMENTS" b ON a."COLUMN_NAME"=b."COLUMN_NAME" AND b."TABLE_NAME"=:table_name_b',
-          'LEFT JOIN "USER_CONS_COLUMNS" c ON a."COLUMN_NAME"=c."COLUMN_NAME" AND c."TABLE_NAME"=:table_name_c',
-          'LEFT JOIN "USER_CONSTRAINTS" d ON c."CONSTRAINT_NAME"=d."CONSTRAINT_NAME" AND d."TABLE_NAME"=:table_name_d',
           'WHERE a."TABLE_NAME"=:table_name_a',
+          'ORDER BY a."COLUMN_ID" ASC',
         ].join(' ');
-        const params = [tableName, tableName, tableName, tableName]
+        const params = [tableName, tableName]
         this.con.execute(sql, params, options, (err: oracledb.DBError, result: oracledb.Result<unknown>): void => {
           if (err === null) {
             const results = result.rows ?? []

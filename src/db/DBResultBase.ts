@@ -10,21 +10,9 @@ export interface DBTableBase {
 }
 
 /**
- * データベースインデックス情報インターフェース
- */
-export interface DBTableIndexBase {
-  isUnique(): boolean
-  getKeyName(): string
-  getSeqInIndex(): number
-  getColumnName(): string
-  getNullable(): string
-}
-
-/**
  * データベーステーブルカラム情報インターフェース
  */
 export interface DBTableColumnBase {
-  isPrimary(): boolean
   isNull(): boolean
   getField(): string
   getType(): string
@@ -34,4 +22,16 @@ export interface DBTableColumnBase {
   getExtra(): string
   getComment(): string
   findDataType(): DataType
+}
+
+/**
+ * データベースインデックス情報インターフェース
+ */
+export interface DBTableIndexBase {
+  isPrimary(): boolean
+  isUnique(): boolean
+  getKeyName(): string
+  getSeqInIndex(): number
+  getColumnName(): string
+  getNullable(): string
 }

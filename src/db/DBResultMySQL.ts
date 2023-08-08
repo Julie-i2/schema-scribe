@@ -64,63 +64,6 @@ export class DBTableMySQL implements DBTableBase {
 }
 
 /**
- * MySQL: データベースインデックス情報クラス
- */
-export class DBTableIndexMySQL implements DBTableIndexBase {
-  public table: string
-  public nonUnique: number
-  public keyName: string
-  public seqInIndex: number
-  public columnName: string
-  public collation: string|null
-  public cardinality: number|null
-  public subPart: number|null
-  public packed: string|null
-  public nullable: string
-  public indexType: string
-  public comment: string|null
-
-  /**
-   * コンストラクタ
-   * @param indexData インデックス情報
-   */
-  public constructor(indexData: any) {
-    this.table = indexData.Table ?? ''
-    this.nonUnique = indexData.Non_unique ?? 0
-    this.keyName = indexData.Key_name ?? ''
-    this.seqInIndex = indexData.Seq_in_index ?? 0
-    this.columnName = indexData.Column_name ?? ''
-    this.collation = indexData.Collation ?? null
-    this.cardinality = indexData.Cardinality ?? null
-    this.subPart = indexData.Sub_part ?? null
-    this.packed = indexData.Packed ?? null
-    this.nullable = indexData.Null ?? ''
-    this.indexType = indexData.Index_type ?? ''
-    this.comment = indexData.Comment ?? null
-  }
-
-  public isUnique(): boolean {
-    return !Boolean(this.nonUnique);
-  }
-
-  public getKeyName(): string {
-    return this.keyName
-  }
-
-  public getSeqInIndex(): number {
-    return this.seqInIndex
-  }
-
-  public getColumnName(): string {
-    return this.columnName
-  }
-
-  public getNullable(): string {
-    return this.nullable
-  }
-}
-
-/**
  * MySQL: データベーステーブルカラム情報クラス
  */
 export class DBTableColumnMySQL implements DBTableColumnBase {
@@ -148,10 +91,6 @@ export class DBTableColumnMySQL implements DBTableColumnBase {
     this.extra = columnData.Extra ?? ''
     this.privileges = columnData.Privileges ?? ''
     this.comment = columnData.Comment ?? ''
-  }
-
-  public isPrimary(): boolean {
-    return this.key === 'PRI'
   }
 
   public isNull(): boolean {
@@ -195,5 +134,66 @@ export class DBTableColumnMySQL implements DBTableColumnBase {
       .on((v) => /(date)/i.test(v), () => DataType.date)
       .on((v) => /(time)/i.test(v), () => DataType.time)
       .otherwise(() => DataType.string)
+  }
+}
+
+/**
+ * MySQL: データベースインデックス情報クラス
+ */
+export class DBTableIndexMySQL implements DBTableIndexBase {
+  public table: string
+  public nonUnique: number
+  public keyName: string
+  public seqInIndex: number
+  public columnName: string
+  public collation: string|null
+  public cardinality: number|null
+  public subPart: number|null
+  public packed: string|null
+  public nullable: string
+  public indexType: string
+  public comment: string|null
+
+  /**
+   * コンストラクタ
+   * @param indexData インデックス情報
+   */
+  public constructor(indexData: any) {
+    this.table = indexData.Table ?? ''
+    this.nonUnique = indexData.Non_unique ?? 0
+    this.keyName = indexData.Key_name ?? ''
+    this.seqInIndex = indexData.Seq_in_index ?? 0
+    this.columnName = indexData.Column_name ?? ''
+    this.collation = indexData.Collation ?? null
+    this.cardinality = indexData.Cardinality ?? null
+    this.subPart = indexData.Sub_part ?? null
+    this.packed = indexData.Packed ?? null
+    this.nullable = indexData.Null ?? ''
+    this.indexType = indexData.Index_type ?? ''
+    this.comment = indexData.Comment ?? null
+  }
+
+  public isPrimary(): boolean {
+    return this.keyName === 'PRIMARY'
+  }
+
+  public isUnique(): boolean {
+    return !Boolean(this.nonUnique);
+  }
+
+  public getKeyName(): string {
+    return this.keyName
+  }
+
+  public getSeqInIndex(): number {
+    return this.seqInIndex
+  }
+
+  public getColumnName(): string {
+    return this.columnName
+  }
+
+  public getNullable(): string {
+    return this.nullable
   }
 }

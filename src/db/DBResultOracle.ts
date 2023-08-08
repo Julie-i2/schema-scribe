@@ -32,54 +32,12 @@ export class DBTableOracle implements DBTableBase {
 }
 
 /**
- * Oracle: データベースインデックス情報クラス
- */
-export class DBTableIndexOracle implements DBTableIndexBase {
-  public uniqueness: string
-  public keyName: string
-  public seqInIndex: number
-  public columnName: string
-
-  /**
-   * コンストラクタ
-   * @param indexData インデックス情報
-   */
-  public constructor(indexData: any) {
-    this.uniqueness = indexData.UNIQUENESS ?? ''
-    this.keyName = indexData.CONSTRAINT_NAME ?? ''
-    this.seqInIndex = indexData.POSITION ?? 0
-    this.columnName = indexData.COLUMN_NAME ?? ''
-  }
-
-  public isUnique(): boolean {
-    return this.uniqueness === 'UNIQUE'
-  }
-
-  public getKeyName(): string {
-    return this.keyName
-  }
-
-  public getSeqInIndex(): number {
-    return this.seqInIndex
-  }
-
-  public getColumnName(): string {
-    return this.columnName
-  }
-
-  public getNullable(): string {
-    return ''
-  }
-}
-
-/**
  * Oracle: データベーステーブルカラム情報クラス
  */
 export class DBTableColumnOracle implements DBTableColumnBase {
   public field: string
   public type: string
   public null: string
-  public key: string
   public default: string|null
   public comment: string
 
@@ -91,13 +49,8 @@ export class DBTableColumnOracle implements DBTableColumnBase {
     this.field = columnData.COLUMN_NAME ?? ''
     this.type = columnData.DATA_TYPE ?? ''
     this.null = columnData.NULLABLE ?? ''
-    this.key = columnData.CONSTRAINT_TYPE ?? ''
     this.default = columnData.DATA_DEFAULT ?? null
     this.comment = columnData.COMMENTS ?? ''
-  }
-
-  public isPrimary(): boolean {
-    return this.key === 'P'
   }
 
   public isNull(): boolean {
@@ -117,7 +70,7 @@ export class DBTableColumnOracle implements DBTableColumnBase {
   }
 
   public getKey(): string {
-    return this.key
+    return ''
   }
 
   public getDefault(): string|null {
@@ -139,5 +92,52 @@ export class DBTableColumnOracle implements DBTableColumnBase {
       .on((v) => /(binary_double)/i.test(v), () => DataType.double)
       .on((v) => /(date|timestamp)/i.test(v), () => DataType.dateTime)
       .otherwise(() => DataType.string)
+  }
+}
+
+/**
+ * Oracle: データベースインデックス情報クラス
+ */
+export class DBTableIndexOracle implements DBTableIndexBase {
+  public uniqueness: string
+  public keyName: string
+  public seqInIndex: number
+  public columnName: string
+  public constraintType: string
+
+  /**
+   * コンストラクタ
+   * @param indexData インデックス情報
+   */
+  public constructor(indexData: any) {
+    this.uniqueness = indexData.UNIQUENESS ?? ''
+    this.keyName = indexData.CONSTRAINT_NAME ?? ''
+    this.seqInIndex = indexData.POSITION ?? 0
+    this.columnName = indexData.COLUMN_NAME ?? ''
+    this.constraintType = indexData.CONSTRAINT_TYPE ?? ''
+  }
+
+  public isPrimary(): boolean {
+    return this.constraintType === 'P'
+  }
+
+  public isUnique(): boolean {
+    return this.uniqueness === 'UNIQUE'
+  }
+
+  public getKeyName(): string {
+    return this.keyName
+  }
+
+  public getSeqInIndex(): number {
+    return this.seqInIndex
+  }
+
+  public getColumnName(): string {
+    return this.columnName
+  }
+
+  public getNullable(): string {
+    return ''
   }
 }

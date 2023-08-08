@@ -174,9 +174,6 @@ class DTOBuilder {
    * @param fieldInfo フィールド情報
    */
   public addField(fieldInfo: DBTableColumnBase): void {
-    if (fieldInfo.isPrimary()) {
-      this.primaryKeys.push(fieldInfo.getField())
-    }
     const dataTypeFinder = this.maker.getDataTypeFinder()
     const dataType = dataTypeFinder?.find(fieldInfo)
     for (const [index, fieldTemplate] of this.maker.getFieldTemplates().entries()) {
@@ -202,6 +199,9 @@ class DTOBuilder {
    * @param indexInfo インデックス情報
    */
   public addIndex(indexInfo: DBTableIndexBase): void {
+    if (indexInfo.isPrimary()) {
+      this.primaryKeys.push(indexInfo.getColumnName())
+    }
     for (const [index, indexTemplate] of this.maker.getIndexTemplates().entries()) {
       let tmpIndex = indexTemplate
       tmpIndex = tmpIndex.replace(PATTERN_INDEX_NAME, indexInfo.getKeyName())
