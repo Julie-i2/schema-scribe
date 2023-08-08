@@ -34,6 +34,8 @@ For example:
         "password": "pass",
         // データベース名
         "database": "system_name",
+        // データベースアプリケーション(`mysql` or `oracle`)
+        "application": "mysql",
       },
       "format": {
         // 出力先のパス
