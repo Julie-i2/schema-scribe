@@ -4,7 +4,7 @@ import * as vscode from 'vscode'
 import { ConfigData } from './ConfigData'
 import DBAccessor from '../db/DBAccessor'
 import DBAccessorBase from '../db/DBAccessorBase'
-import { DTOMaker } from '../builder/dtoMaker'
+import { DTOMaker } from '../builder/DTOMaker'
 import { SQLiteGenerator } from '../builder/SQLBuilderForSqlite'
 
 /**
@@ -173,9 +173,9 @@ class DTOMakerProcessor {
 
   /**
    * ファイル出力
-   * @param fileName 
-   * @param content 
-   * @param fileExtension 
+   * @param fileName
+   * @param content
+   * @param fileExtension
    */
   private output(fileName: string, content: string, fileExtension: string): void {
     const path = this.config.format.outputPath
