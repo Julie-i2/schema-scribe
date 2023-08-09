@@ -10,6 +10,19 @@ export default class DataTypeFinderForJava extends DataTypeFinderBase {
   /** データ型名称リスト */
   private static get dataTypeList(): Map<DataType, string> {
     return new Map<DataType, string>([
+      [DataType.int, 'int'],
+      [DataType.float, 'float'],
+      [DataType.double, 'double'],
+      [DataType.string, 'String'],
+      [DataType.dateTime, 'Date'],
+      [DataType.date, 'Date'],
+      [DataType.time, 'Date'],
+    ])
+  }
+
+  /** データ型名称リスト(Nullable) */
+  private static get dataTypeNullableList(): Map<DataType, string> {
+    return new Map<DataType, string>([
       [DataType.int, 'Integer'],
       [DataType.float, 'Float'],
       [DataType.double, 'Double'],
@@ -49,7 +62,9 @@ export default class DataTypeFinderForJava extends DataTypeFinderBase {
    * @returns データ種別ラベル
    */
   protected createDataTypeLabel(fieldInfo: DBTableColumnBase, dataType: DataType) : string {
-    return DataTypeFinderForJava.dataTypeList.get(dataType) ?? ''
+    const dataTypeLabel = DataTypeFinderForJava.dataTypeList.get(dataType) ?? ''
+    const nullableLabel = DataTypeFinderForJava.dataTypeNullableList.get(dataType) ?? ''
+    return fieldInfo.isNull() ? nullableLabel : dataTypeLabel
   }
 
   /**

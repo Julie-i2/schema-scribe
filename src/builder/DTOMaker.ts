@@ -1,61 +1,65 @@
 import { SettingFormat } from '../application/ConfigData'
 import CustomClassName from './CustomClassName'
+import { DataType } from './DataType'
 import DataTypeFinder from './DataTypeFinder'
 import DataTypeFinderBase from './DataTypeFinderBase'
 import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
 
-/** 正規表現パターン：クラス名 */
+/** 正規表現パターン: クラス名 */
 const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g
-/** 正規表現パターン：クラス説明 */
+/** 正規表現パターン: クラス説明 */
 const PATTERN_CLASS_DESCRIPTION = /\{\{class_desc\}\}/g
-/** 正規表現パターン：テーブル名 */
+/** 正規表現パターン: テーブル名 */
 const PATTERN_TABLE_NAME = /\{\{table_name\}\}/g
-/** 正規表現パターン：テーブルコメント */
+/** 正規表現パターン: テーブルコメント */
 const PATTERN_TABLE_COMMENT = /\{\{table_comment\}\}/g
-/** 正規表現パターン：エンジン */
+/** 正規表現パターン: エンジン */
 const PATTERN_ENGINE = /\{\{engine\}\}/g
-/** 正規表現パターン：プライマリID */
+/** 正規表現パターン: プライマリID */
 const PATTERN_PRIMARY_ID = /\{\{primary_id\}\}/g
 const PATTERN_PRIMARY_IDS = /\{\{primary_ids\}\}/g
 const PATTERN_PRIMARY_IDS_SINGLE_QUOTE = /\{\{primary_ids_sq\}\}/g
 const PATTERN_PRIMARY_IDS_DOUBLE_QUOTE = /\{\{primary_ids_dq\}\}/g
-/** 正規表現パターン：フィールドリスト */
+/** 正規表現パターン: フィールドリスト */
 const PATTERN_FIELD_LIST_WHOLE = /<<<fields_list(\r\n|\n).*?>>>fields_list(\r\n|\n)/gs
-/** 正規表現パターン：フィールドリスト */
+/** 正規表現パターン: フィールドリスト */
 const PATTERN_FIELD_LIST_PARTS = /<<<fields_list(\r\n|\n)(.*?)>>>fields_list(\r\n|\n)/s
-/** 正規表現パターン：インデックスリスト */
+/** 正規表現パターン: インデックスリスト */
 const PATTERN_INDEX_LIST_WHOLE = /<<<indexes_list(\r\n|\n).*?>>>indexes_list(\r\n|\n)/gs
-/** 正規表現パターン：インデックスリスト */
+/** 正規表現パターン: インデックスリスト */
 const PATTERN_INDEX_LIST_PARTS = /<<<indexes_list(\r\n|\n)(.*?)>>>indexes_list(\r\n|\n)/s
-/** 正規表現パターン(フィールド)：フィールドコメント */
+/** 正規表現パターン(フィールド): フィールドコメント */
 const PATTERN_FIELD_COMMENT = /\{\{field_comment\}\}/g
-/** 正規表現パターン(フィールド)：フィールド型 */
+/** 正規表現パターン(フィールド): フィールド型 */
 const PATTERN_FIELD_TYPE = /\{\{field_type\}\}/g
-/** 正規表現パターン(フィールド)：プログラム言語型 */
+/** 正規表現パターン(フィールド): プログラム言語型 */
 const PATTERN_FIELD_LANG_TYPE = /\{\{field_lang_type\}\}/g
-/** 正規表現パターン(フィールド)：フィールド名 */
+/** 正規表現パターン(フィールド): フィールド名 */
 const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g
-/** 正規表現パターン(フィールド)：フィールド名(大文字) */
+/** 正規表現パターン(フィールド): フィールド名(大文字) */
 const PATTERN_FIELD_NAME_UPPERCASE = /\{\{field_name_uppercase\}\}/g
-/** 正規表現パターン(フィールド)：Null許容 */
+/** 正規表現パターン(フィールド): Null許容 */
 const PATTERN_FIELD_NULLABLE = /\{\{field_nullable\}\}/g
-/** 正規表現パターン(フィールド)：フィールドの既定値 */
+/** 正規表現パターン(フィールド): フィールドの既定値 */
 const PATTERN_FIELD_DEFAULT_VALUE = /\{\{field_default_value\}\}/g
-/** 正規表現パターン(フィールド)：プログラム言語の既定値 */
+/** 正規表現パターン(フィールド): プログラム言語の既定値 */
 const PATTERN_FIELD_LANG_DEFAULT_VALUE = /\{\{field_lang_default_value\}\}/g
-/** 正規表現パターン(フィールド)：フィールドのキー */
+/** 正規表現パターン(フィールド): フィールドのキー */
 const PATTERN_FIELD_KEY = /\{\{field_key\}\}/g
-/** 正規表現パターン(フィールド)：フィールドのExtra */
+/** 正規表現パターン(フィールド): フィールドのExtra */
 const PATTERN_FIELD_EXTRA = /\{\{field_extra\}\}/g
-/** 正規表現パターン(インデックス)：インデックス名 */
+/** 正規表現パターン(フィールド): フィールドがString型でNonNullの場合「@NonNull」を追記 */
+const PATTERN_FIELD_ANNOTATION_NON_NULL_STRING = /\{\{field_annotation_non_null_string\}\}/g
+const PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE = /^.*\{\{field_annotation_non_null_string\}\}(\r\n|\r|\n)$/g
+/** 正規表現パターン(インデックス): インデックス名 */
 const PATTERN_INDEX_NAME = /\{\{index_name\}\}/g
-/** 正規表現パターン(インデックス)：カラム */
+/** 正規表現パターン(インデックス): カラム */
 const PATTERN_INDEX_COLUMNS = /\{\{index_columns\}\}/g
-/** 正規表現パターン(インデックス)：複合キー順序 */
+/** 正規表現パターン(インデックス): 複合キー順序 */
 const PATTERN_INDEX_ORDER = /\{\{index_order\}\}/g
-/** 正規表現パターン(インデックス)：NULL */
+/** 正規表現パターン(インデックス): NULL */
 const PATTERN_INDEX_NULLABLE = /\{\{index_nullable\}\}/g
-/** 正規表現パターン(インデックス)：ユニーク */
+/** 正規表現パターン(インデックス): ユニーク */
 const PATTERN_INDEX_UNIQUE = /\{\{index_unique\}\}/g
 
 /**
@@ -175,6 +179,11 @@ class DTOBuilder {
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')
       tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.getKey())
       tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.getExtra())
+      if (fieldInfo.isNull() && fieldInfo.findDataType() === DataType.string) {
+        tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING, '@NonNull')
+      } else {
+        tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE, '')
+      }
       const list = this.replaceFieldMap.get(index) ?? []
       this.replaceFieldMap.set(index, list)
       list.push(tmpField)
