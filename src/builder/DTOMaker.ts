@@ -50,7 +50,7 @@ const PATTERN_FIELD_KEY = /\{\{field_key\}\}/g
 const PATTERN_FIELD_EXTRA = /\{\{field_extra\}\}/g
 /** 正規表現パターン(フィールド): フィールドがString型でNonNullの場合「@NonNull」を追記 */
 const PATTERN_FIELD_ANNOTATION_NON_NULL_STRING = /\{\{field_annotation_non_null_string\}\}/g
-const PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE = /^.*\{\{field_annotation_non_null_string\}\}(\r\n|\r|\n)$/g
+const PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE = / *\{\{field_annotation_non_null_string\}\}(\r\n|\r|\n)/m
 /** 正規表現パターン(インデックス): インデックス名 */
 const PATTERN_INDEX_NAME = /\{\{index_name\}\}/g
 /** 正規表現パターン(インデックス): カラム */
@@ -179,7 +179,7 @@ class DTOBuilder {
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')
       tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.getKey())
       tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.getExtra())
-      if (fieldInfo.isNull() && fieldInfo.findDataType() === DataType.string) {
+      if (!fieldInfo.isNull() && fieldInfo.findDataType() === DataType.string) {
         tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING, '@NonNull')
       } else {
         tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE, '')
