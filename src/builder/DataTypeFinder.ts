@@ -7,7 +7,7 @@ import DataTypeFinderForTS from './DataTypeFinderForTS'
  * データ種別パーサー生成
  */
 export default class DataTypeFinder {
-  public static create(defaultValues: object, fileExtension: string): DataTypeFinderBase|null {
+  public static create(defaultValues: object, fileExtension: string): DataTypeFinderBase|undefined {
     switch (fileExtension) {
       case 'java': {
         return new DataTypeFinderForJava(defaultValues)
@@ -19,7 +19,7 @@ export default class DataTypeFinder {
         return new DataTypeFinderForTS(defaultValues)
       }
       default: {
-        return null
+        return undefined
       }
     }
   }

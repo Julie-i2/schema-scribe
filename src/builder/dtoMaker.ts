@@ -1,9 +1,8 @@
 import { SettingFormat } from '../application/ConfigData'
+import CustomClassName from './CustomClassName'
 import DataTypeFinder from './DataTypeFinder'
 import DataTypeFinderBase from './DataTypeFinderBase'
 import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
-import { camelize } from '../application/Utility'
-
 
 /** 正規表現パターン：クラス名 */
 const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g
@@ -68,16 +67,15 @@ export class DTOMaker
   private template: string
   private fieldTemplates: string[] = []
   private indexTemplates: string[] = []
-  private dataTypeFinder: DataTypeFinderBase|null
-  private classNameFormat: string
-  private ltrimTableName: string
+  private dataTypeFinder?: DataTypeFinderBase
+  private customClassName: CustomClassName
 
   /**
    * コンストラクタ
    * @param template テンプレート文
    * @param config 設定データ
    */
-  public constructor(template: string, { className, ltrimTableName, fileExtension, defaultValues }: SettingFormat) {
+  public constructor(template: string, { className, fileExtension, defaultValues }: SettingFormat) {
     // テンプレートからフィールドテンプレートとインデックステンプレートを抜き出す
     let fieldCounter = 1
     template = template.replace(PATTERN_FIELD_LIST_WHOLE, (match) => {
@@ -92,9 +90,8 @@ export class DTOMaker
       return `INDEX_LIST_NO_${indexCounter++}`
     })
     this.template = template
-    this.classNameFormat = className
-    this.ltrimTableName = ltrimTableName
     this.dataTypeFinder = DataTypeFinder.create(defaultValues, fileExtension)
+    this.customClassName = new CustomClassName(className)
   }
 
   /**
@@ -118,7 +115,7 @@ export class DTOMaker
     return this.indexTemplates
   }
 
-  public getDataTypeFinder(): DataTypeFinderBase|null {
+  public getDataTypeFinder(): DataTypeFinderBase|undefined {
     return this.dataTypeFinder
   }
 
@@ -127,17 +124,7 @@ export class DTOMaker
    * @param tableName テーブル名
    */
   public createClassName(tableName: string): string {
-    if (this.ltrimTableName) {
-      const ltrimRegex = new RegExp(`^${this.ltrimTableName}`)
-      tableName = tableName.replace(ltrimRegex, '')
-    }
-    tableName = tableName.replace(/\.|\"|\/|\\|\[|\]|\:|\;|\||\=|\,/g, ' ')
-    tableName = camelize(tableName)
-    const classNameRegex = /\${className}/
-    if (this.classNameFormat && classNameRegex.test(this.classNameFormat)) {
-      tableName = this.classNameFormat.replace(classNameRegex, tableName)
-    }
-    return tableName
+    return this.customClassName.convert(tableName)
   }
 }
 

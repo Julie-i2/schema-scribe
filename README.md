@@ -44,18 +44,18 @@ For example:
         "outputReset": true,
         // テンプレートファイルのパス
         "templatePath": "${workspaceRoot}/.vscode/dto-template.txt",
-        // 出力を1つのファイルにまとめる [default false]
-        "combine": false,
-        // 出力を1つのファイルにまとめた際のファイル名
+        // 出力を1つのファイルにまとめた際のファイル名 [default ""]
+        // - この指定がある時は1つのファイルにまとめて出力する
         "combineFileName": "dtos",
         // 種別 ["dto", "create", "sqlite"]
         "type": "dto",
-        // DTOクラス名のPrefix・Suffix
-        "className": "${className}DTO",
+        // DTOクラス名のカスタマイズ
+        // - そのままのテーブル名 or キャメルケース 例: "${plain}" or "${camelize}"
+        // - Prefix・Suffix 例: "DataBase${plain}Entity"
+        // - Trim 例: "${plain(ltrim:'table_',rtrim:'_table',trim:'data')}"
+        "className": "${camelize}DTO",
         // 作成するファイルの拡張子
         "fileExtension": "php",
-        // テーブル名からマッチした先頭文字を取り外す
-        "ltrimTableName": "table_",
         // データ型ごとの初期値を指定する
         "defaultValues": {
           "datetime": "DEFAULT_DATETIME",

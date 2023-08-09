@@ -116,12 +116,10 @@ export class SettingFormat {
   public outputReset: boolean
   public outputPath: string
   public templatePath: string
-  public combine: boolean
   public combineFileName: string
   public type: string
   public className: string
   public fileExtension: string
-  public ltrimTableName: string
   public defaultValues: any
   public eol: string
   constructor(config: any, workspaceRoot: string) {
@@ -129,12 +127,10 @@ export class SettingFormat {
     this.outputReset = !!config.outputReset
     this.outputPath =  (config.outputPath ?? '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.templatePath = (config.templatePath ?? '').replace(/\${workspaceRoot}/g, workspaceRoot)
-    this.combine = config?.combine?.enabled ?? false
-    this.combineFileName = config?.combine?.fileName ?? 'noTitle'
+    this.combineFileName = config.combineFileName ?? ''
     this.type = config.type ?? ''
     this.className = config.className ?? ''
     this.fileExtension = config.fileExtension ?? ''
-    this.ltrimTableName = config.ltrimTableName ?? ''
     this.defaultValues = config.defaultValues
     this.eol = config?.eol ?? '\n'
   }

@@ -12,6 +12,7 @@
       "oracledb",
       "onedto",
       "onesqlite",
+      "rtrim",
       "tinyint"
   ]
 }

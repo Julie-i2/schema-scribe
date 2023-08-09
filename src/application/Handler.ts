@@ -133,14 +133,14 @@ class DTOMakerProcessor {
       for (const tableIndex of tableIndexes) {
         dtoBuilder.addIndex(tableIndex)
       }
-      const fileName = (this.config.format.combine) ? this.config.format.combineFileName : dtoBuilder.getClassName()
+      const fileName = this.config.format.combineFileName || dtoBuilder.getClassName()
       const content = dtoBuilder.generateContent(this.config.format.eol)
       const previousContent = contentMap.get(fileName) ?? ''
       contentMap.set(fileName, `${previousContent}${content}`)
     }
     this.deleteFiles()
     for (const [fileName, content] of contentMap) {
-      this.output({ fileName, content })
+      this.output(fileName, content, this.config.format.fileExtension)
     }
   }
 
@@ -149,10 +149,10 @@ class DTOMakerProcessor {
    */
   public async buildCreateSQL(): Promise<void> {
     this.deleteFiles()
-    for (const table of this.tableNames) {
-      let content = await this.dbAccessor.getTableCreate(table)
+    for (const tableName of this.tableNames) {
+      let content = await this.dbAccessor.getTableCreate(tableName)
       content = content.replace(/(AUTO_INCREMENT)=\d+/g, '$1=1')
-      this.output({ fileName: table, content, fileExtension: 'sql' })
+      this.output(tableName, content, 'sql')
     }
   }
 
@@ -166,20 +166,22 @@ class DTOMakerProcessor {
       generator.addTable(table, tableColumns)
     }
     this.deleteFiles()
+    const fileName = this.config.format.combineFileName || 'noTitle'
     const content = generator.build()
-    this.output({ content, fileExtension: 'sql' })
+    this.output(fileName, content, 'sql')
   }
 
   /**
    * ファイル出力
-   * @param param0
+   * @param fileName 
+   * @param content 
+   * @param fileExtension 
    */
-  private output({ fileName, fileExtension, content }: { fileName?: string, fileExtension?: string, content?: string }): void {
+  private output(fileName: string, content: string, fileExtension: string): void {
     const path = this.config.format.outputPath
-    const name = fileName ?? this.config.format.combineFileName
-    const nameOpt = this.optimizeFileName(name)
-    const extension = fileExtension ?? this.config.format.fileExtension
-    fs.writeFileSync(`${path}/${nameOpt}.${extension}`, content ?? '', 'utf8')
+    const nameOpt = this.optimizeFileName(fileName)
+    const extension = fileExtension ? `.${fileExtension}` : fileExtension
+    fs.writeFileSync(`${path}/${nameOpt}${extension}`, content, 'utf8')
   }
 
   /**
