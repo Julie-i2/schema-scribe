@@ -179,7 +179,7 @@ class DTOBuilder {
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')
       tmpField = tmpField.replace(PATTERN_FIELD_KEY, fieldInfo.getKey())
       tmpField = tmpField.replace(PATTERN_FIELD_EXTRA, fieldInfo.getExtra())
-      if (!fieldInfo.isNull() && fieldInfo.findDataType() === DataType.string) {
+      if (!fieldInfo.isNull() && [DataType.string, DataType.date, DataType.dateTime].includes(fieldInfo.findDataType())) {
         tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING, '@NonNull')
       } else {
         tmpField = tmpField.replace(PATTERN_FIELD_ANNOTATION_NON_NULL_STRING_LINE, '')
