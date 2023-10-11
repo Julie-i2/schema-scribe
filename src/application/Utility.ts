@@ -55,7 +55,6 @@ export function lowerCamelize(source: string): string {
     .replace(/_/g, ' ')
     .replace(/\s+(.)/g, ($1) => $1.toUpperCase())
     .replace(/\s/g, '')
-    .replace(/^[a-z]/g, (val) => val.toUpperCase())
 }
 
 /**
@@ -64,7 +63,7 @@ export function lowerCamelize(source: string): string {
  * @returns キャメルケース
  */
 export function upperCamelize(source: string): string {
-  return lowerCamelize(source).replace(/^(.)/g, ($1) => $1.toUpperCase())
+  return lowerCamelize(source).replace(/^[a-z]/g, (val) => val.toUpperCase())
 }
 
 /**
