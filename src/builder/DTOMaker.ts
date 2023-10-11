@@ -4,6 +4,7 @@ import { DataType } from './DataType'
 import DataTypeFinder from './DataTypeFinder'
 import DataTypeFinderBase from './DataTypeFinderBase'
 import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
+import { lowerCamelize } from '../application/Utility'
 
 /** 正規表現パターン: クラス名 */
 const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g
@@ -38,6 +39,8 @@ const PATTERN_FIELD_LANG_TYPE = /\{\{field_lang_type\}\}/g
 const PATTERN_FIELD_NAME = /\{\{field_name\}\}/g
 /** 正規表現パターン(フィールド): フィールド名(大文字) */
 const PATTERN_FIELD_NAME_UPPERCASE = /\{\{field_name_uppercase\}\}/g
+/** 正規表現パターン(フィールド): フィールド名(lower camel case) */
+const PATTERN_FIELD_NAME_LOWER_CAMEL_CASE = /\{\{field_name_lower_camel_case\}\}/g
 /** 正規表現パターン(フィールド): Null許容 */
 const PATTERN_FIELD_NULLABLE = /\{\{field_nullable\}\}/g
 /** 正規表現パターン(フィールド): フィールドの既定値 */
@@ -174,6 +177,7 @@ class DTOBuilder {
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_TYPE, dataType?.label ?? '')
       tmpField = tmpField.replace(PATTERN_FIELD_NAME, fieldInfo.getField())
       tmpField = tmpField.replace(PATTERN_FIELD_NAME_UPPERCASE, fieldInfo.getField().toUpperCase())
+      tmpField = tmpField.replace(PATTERN_FIELD_NAME_LOWER_CAMEL_CASE, lowerCamelize(fieldInfo.getField()))
       tmpField = tmpField.replace(PATTERN_FIELD_NULLABLE, fieldInfo.getNull())
       tmpField = tmpField.replace(PATTERN_FIELD_DEFAULT_VALUE, fieldInfo.getDefault() ?? 'n/a')
       tmpField = tmpField.replace(PATTERN_FIELD_LANG_DEFAULT_VALUE, dataType?.defaultValue ?? '')

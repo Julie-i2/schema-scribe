@@ -1,4 +1,4 @@
-import { camelize } from '../application/Utility'
+import { upperCamelize } from '../application/Utility'
 
 /** フォーマット種別 */
 enum FormatType {
@@ -65,7 +65,7 @@ export default class CustomClassName {
     }
     baseName = baseName.replace(/\.|\"|\/|\\|\[|\]|\:|\;|\||\=|\,/g, ' ')
     if (this.format === FormatType.camelize) {
-      baseName = camelize(baseName)
+      baseName = upperCamelize(baseName)
     }
     return `${this.prefix}${baseName}${this.suffix}`
   }
