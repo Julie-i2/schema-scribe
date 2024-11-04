@@ -11,12 +11,13 @@ export default class DataTypeFinderForJava extends DataTypeFinderBase {
   private static get dataTypeList(): Map<DataType, string> {
     return new Map<DataType, string>([
       [DataType.int, 'int'],
+      [DataType.long, 'long'],
       [DataType.float, 'float'],
       [DataType.double, 'double'],
       [DataType.string, 'String'],
-      [DataType.dateTime, 'Date'],
-      [DataType.date, 'Date'],
-      [DataType.time, 'Date'],
+      [DataType.dateTime, 'LocalDateTime'],
+      [DataType.date, 'LocalDateTime'],
+      [DataType.time, 'LocalDateTime'],
     ])
   }
 
@@ -24,12 +25,13 @@ export default class DataTypeFinderForJava extends DataTypeFinderBase {
   private static get dataTypeNullableList(): Map<DataType, string> {
     return new Map<DataType, string>([
       [DataType.int, 'Integer'],
+      [DataType.long, 'Long'],
       [DataType.float, 'Float'],
       [DataType.double, 'Double'],
       [DataType.string, 'String'],
-      [DataType.dateTime, 'Date'],
-      [DataType.date, 'Date'],
-      [DataType.time, 'Date'],
+      [DataType.dateTime, 'LocalDateTime'],
+      [DataType.date, 'LocalDateTime'],
+      [DataType.time, 'LocalDateTime'],
     ])
   }
 

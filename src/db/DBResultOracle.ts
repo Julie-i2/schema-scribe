@@ -1,5 +1,4 @@
 import { DataType } from '../builder/DataType'
-import { when } from '../application/Utility'
 import { DBTableBase, DBTableIndexBase, DBTableColumnBase } from './DBResultBase'
 
 /**
@@ -39,6 +38,8 @@ export class DBTableColumnOracle implements DBTableColumnBase {
   public type: string
   public null: string
   public default: string|null
+  public precision: number|null
+  public scale: number|null
   public comment: string
 
   /**
@@ -50,6 +51,8 @@ export class DBTableColumnOracle implements DBTableColumnBase {
     this.type = columnData.DATA_TYPE ?? ''
     this.null = columnData.NULLABLE ?? ''
     this.default = columnData.DATA_DEFAULT ?? null
+    this.precision = columnData.DATA_PRECISION ?? null;
+    this.scale = columnData.DATA_SCALE ?? null;
     this.comment = columnData.COMMENTS ?? ''
   }
 
@@ -86,12 +89,25 @@ export class DBTableColumnOracle implements DBTableColumnBase {
   }
 
   public findDataType(): DataType {
-    return when(this.type)
-      .on((v) => /(number)/i.test(v), () => DataType.int)
-      .on((v) => /(binary_float)/i.test(v), () => DataType.float)
-      .on((v) => /(binary_double)/i.test(v), () => DataType.double)
-      .on((v) => /(date|timestamp)/i.test(v), () => DataType.dateTime)
-      .otherwise(() => DataType.string)
+    if (/(number)/i.test(this.type)) {
+      const precision = this.precision ?? 0;
+      const scale = this.scale ?? 0;
+      if (scale > 0) {
+        return DataType.double;
+      } else if (precision > 10) {
+        return DataType.long;
+      } else {
+        return DataType.int;
+      }
+    } else if (/(binary_float)/i.test(this.type)) {
+      return DataType.float;
+    } else if (/(binary_double)/i.test(this.type)) {
+      return DataType.double;
+    } else if (/(date|timestamp)/i.test(this.type)) {
+      return DataType.dateTime;
+    } else {
+      return DataType.string;
+    }
   }
 }
 

@@ -3,12 +3,13 @@ import { when } from '../application/Utility'
 /** データ型 */
 export enum DataType {
   int = 1,
-  float = 2,
-  double = 3,
-  dateTime = 4,
-  date = 5,
-  time = 6,
-  string = 7,
+  long = 2,
+  float = 3,
+  double = 4,
+  dateTime = 5,
+  date = 6,
+  time = 7,
+  string = 8,
 }
 
 /**

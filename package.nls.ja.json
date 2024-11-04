@@ -1,8 +1,8 @@
 {
-    "dtomaker.all.title": "すべての作成課題を実行",
-    "dtomaker.alldto.title": "すべてのDTOを作成",
-    "dtomaker.onedto.title": "1つのDTOを作成",
-    "dtomaker.allcreatesql.title": "すべてのCREATE SQLを作成",
-    "dtomaker.allsqlite.title": "すべてのSQLiteを作成",
-    "dtomaker.onesqlite.title": "1つのSQLiteを作成"
+    "scheme-scribe.all.title": "すべての作成課題を実行",
+    "scheme-scribe.all_entities.title": "すべてのEntityを作成",
+    "scheme-scribe.one_entity.title": "1つのEntityを作成",
+    "scheme-scribe.all_create_sql.title": "すべてのCREATE SQLを作成",
+    "scheme-scribe.all_sqlite.title": "すべてのSQLiteを作成",
+    "scheme-scribe.one_sqlite.title": "1つのSQLiteを作成"
 }

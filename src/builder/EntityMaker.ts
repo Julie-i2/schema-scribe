@@ -1,10 +1,10 @@
 import { SettingFormat } from '../application/ConfigData'
+import { lowerCamelize } from '../application/Utility'
+import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
 import CustomClassName from './CustomClassName'
 import { DataType } from './DataType'
 import DataTypeFinder from './DataTypeFinder'
 import DataTypeFinderBase from './DataTypeFinderBase'
-import { DBTableBase, DBTableColumnBase, DBTableIndexBase } from '../db/DBResultBase'
-import { lowerCamelize } from '../application/Utility'
 
 /** 正規表現パターン: クラス名 */
 const PATTERN_CLASS_NAME = /\{\{class_name\}\}/g
@@ -66,10 +66,9 @@ const PATTERN_INDEX_NULLABLE = /\{\{index_nullable\}\}/g
 const PATTERN_INDEX_UNIQUE = /\{\{index_unique\}\}/g
 
 /**
- * DTOメーカー
+ * Entityメーカー
  */
-export class DTOMaker
-{
+export class EntityMaker {
   /** テンプレートコンテンツ */
   private template: string
   private fieldTemplates: string[] = []
@@ -102,12 +101,12 @@ export class DTOMaker
   }
 
   /**
-   * DBテーブル情報からDTO構築機を取得する
+   * DBテーブル情報からEntityビルダーを取得する
    * @param {DBTableBase} dbTable テーブル名
-   * @returns {DTOBuilder}
+   * @returns {EntityBuilder}
    */
-  public createBuilder(dbTable: DBTableBase): DTOBuilder {
-    return new DTOBuilder(this, dbTable)
+  public createBuilder(dbTable: DBTableBase): EntityBuilder {
+    return new EntityBuilder(this, dbTable)
   }
 
   public getContent(): string {
@@ -122,7 +121,7 @@ export class DTOMaker
     return this.indexTemplates
   }
 
-  public getDataTypeFinder(): DataTypeFinderBase|undefined {
+  public getDataTypeFinder(): DataTypeFinderBase | undefined {
     return this.dataTypeFinder
   }
 
@@ -138,9 +137,9 @@ export class DTOMaker
 /**
  * テンプレートを元に置き換えをするクラス
  */
-class DTOBuilder {
+class EntityBuilder {
   /** 共通部メーカー */
-  private maker: DTOMaker
+  private maker: EntityMaker
   /** クラス名 */
   private className: string
   /** テーブル情報 */
@@ -157,7 +156,7 @@ class DTOBuilder {
    * @param maker 共通部メーカー
    * @param tableInfo DBテーブル情報
    */
-  public constructor(maker: DTOMaker, tableInfo: DBTableBase) {
+  public constructor(maker: EntityMaker, tableInfo: DBTableBase) {
     this.maker = maker
     this.className = maker.createClassName(tableInfo.getName())
     this.tableInfo = tableInfo
@@ -216,7 +215,7 @@ class DTOBuilder {
   }
 
   /**
-   * クラス名（DTOファイル名）を取得
+   * クラス名（Entityファイル名）を取得
    * @returns
    */
   public getClassName(): string {
@@ -237,8 +236,8 @@ class DTOBuilder {
     content = content.replace(PATTERN_ENGINE, this.tableInfo.getEngine())
     content = content.replace(PATTERN_PRIMARY_ID, this.primaryKeys[0] ?? '')
     content = content.replace(PATTERN_PRIMARY_IDS, this.primaryKeys.join(','))
-    content = content.replace(PATTERN_PRIMARY_IDS_SINGLE_QUOTE, this.primaryKeys.map(key => `'${key}'`).join(','))
-    content = content.replace(PATTERN_PRIMARY_IDS_DOUBLE_QUOTE, this.primaryKeys.map(key => `"${key}"`).join(','))
+    content = content.replace(PATTERN_PRIMARY_IDS_SINGLE_QUOTE, this.primaryKeys.map((key) => `'${key}'`).join(','))
+    content = content.replace(PATTERN_PRIMARY_IDS_DOUBLE_QUOTE, this.primaryKeys.map((key) => `"${key}"`).join(','))
     for (const [index, fields] of this.replaceFieldMap) {
       const number = index + 1
       const regExp = new RegExp(`FIELD_LIST_NO_${number}`)

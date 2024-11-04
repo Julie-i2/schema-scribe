@@ -1,27 +1,26 @@
-# DTO Maker
+# Scheme Scribe
 
-`DTO Maker`はデータベースのテーブル情報を参照し、DTOクラスを自動で生成する拡張機能です。フォルダごとに設定でき、複数のデータベースにも対応できます。
-
-<br />
+`Scheme Scribe`はデータベースのテーブル情報を参照し、Entityクラスを自動で生成する拡張機能です。  
+フォルダごとに設定でき、複数のデータベースにも対応できます。  
+ベースになった元の拡張機能`DTO Maker`の進化版です。
 
 ## 必要条件
 
-1. プロジェクトフォルダ直下に`.dtomaker`フォルダを用意します。
-2. `.dtomaker`フォルダ内に`config.json`と`テンプレート用テキストファイル`を用意します。
-
-<br />
+1. プロジェクトフォルダ直下に`.scheme-scribe`フォルダを用意します。
+2. `.scheme-scribe`フォルダ内に`config.json`と`テンプレート用テキストファイル`を用意します。
 
 ## 設定
 
-参照するデータベースの設定やDTOクラスのフォーマット、出力先等を設定することが可能です。<br />
-設定は`workspace`直下の`.dtomaker/config.json`に記載します。
+参照するデータベースの設定やEntityクラスのフォーマット、出力先等を設定することが可能です。  
+設定は`workspace`直下の`.scheme-scribe/config.json`に記載します。
 
 > **注意**：この設定はVS Codeの`setting.json`とは異なります。
 
 For example:
-``` json
+
+```json
 {
-  "DTOMaker.configs": [
+  "SchemeScribe.configs": [
     {
       "database": {
         // データベースのホスト
@@ -40,20 +39,20 @@ For example:
       "format": {
         // 出力先のパス
         "outputPath": "${workspaceRoot}/classes/IO/DataBase/DTO",
-        // DTO生成前に出力先フォルダの中身をすべて削除する [default true]
+        // Entity生成前に出力先フォルダの中身をすべて削除する [default true]
         "outputReset": true,
         // テンプレートファイルのパス
         "templatePath": "${workspaceRoot}/.vscode/dto-template.txt",
         // 出力を1つのファイルにまとめた際のファイル名 [default ""]
         // - この指定がある時は1つのファイルにまとめて出力する
-        "combineFileName": "dtos",
-        // 種別 ["dto", "create", "sqlite"]
-        "type": "dto",
-        // DTOクラス名のカスタマイズ
+        "combineFileName": "entities",
+        // 種別 ["entity", "create", "sqlite"]
+        "type": "entity",
+        // Entityクラス名のカスタマイズ
         // - そのままのテーブル名 or キャメルケース 例: "${plain}" or "${camelize}"
         // - Prefix・Suffix 例: "DataBase${plain}Entity"
         // - Trim 例: "${plain(ltrim:'table_',rtrim:'_table',trim:'data')}"
-        "className": "${camelize}DTO",
+        "className": "${camelize}Entity",
         // 作成するファイルの拡張子
         "fileExtension": "php",
         // データ型ごとの初期値を指定する
@@ -82,20 +81,18 @@ For example:
 |置き換え文字|利用可能設定項目|説明|
 |---|---|---|
 |`${workspaceRoot}`|io.outputPath \| io.templatePath|ワークスペースルートフォルダ|
-|`${className}`|format.className|DTOクラス・ファイル名|
-
-<br />
+|`${className}`|format.className|クラス・ファイル名|
 
 ## テンプレート用テキストファイルについて
 
-DTOクラスを生成するにはテンプレートファイルを用意する必要があります。<br />
-名前は何でも構いませんが、テキスト形式である必要があります。<br />
+Entityクラスを生成するにはテンプレートファイルを用意する必要があります。  
+名前は何でも構いませんが、テキスト形式である必要があります。  
 テンプレート内の以下の文字列はシステムで自動的に置き換わります。
 
 |置換え文字|説明|
 |---|---|
-|`{{class_name}}`|DTOのクラス名|
-|`{{class_desc}}`|DTO用DBテーブルコメント|
+|`{{class_name}}`|Entityのクラス名|
+|`{{class_desc}}`|Entity用DBテーブルコメント|
 |`{{table_name}}`|DBテーブル名|
 |`{{table_comment}}`|DBテーブルコメント|
 |`{{engine}}`|DBエンジン名|
@@ -123,9 +120,11 @@ DTOクラスを生成するにはテンプレートファイルを用意する�
 |`{{index_nullable}}`|Null許容情報。`インデックスプロパティ領域内に記載`|
 |`{{index_unique}}`|ユニーク情報。`インデックスプロパティ領域内に記載`|
 
-For example:
+### For example
 
-``` php
+#### php
+
+```php
 <?php
 namespace IO\DataBase\DTO;
 use Standard\IO\Data\DTO\AbstractParameter;
@@ -134,7 +133,7 @@ use Standard\IO\Data\DTO\AbstractParameter;
  * データベースDTO
  * Table: {{table_name}}
  * {{class_desc}}
- * @author DTO Maker
+ * @author Scheme Scribe
  */
 class {{class_name}} extends AbstractParameter
 {
@@ -152,4 +151,32 @@ class {{class_name}} extends AbstractParameter
     public ${{field_name}} = {{field_lang_default_value}};
 >>>fields_list
 }
+```
+
+#### Mark Down
+
+```md
+# 「{{table_name}}」テーブル定義書
+
+{{table_comment}}
+
+{{engine}}
+
+Primary ID: {{primary_ids}}
+
+## カラム
+
+|カラム名|型|Null許容|デフォルト値|キー|その他|コメント|
+|---|---|---|---|---|---|---|
+<<<fields_list
+|{{field_name}}|{{field_type}}|{{field_nullable}}|{{field_default_value}}|{{field_key}}|{{field_extra}}|{{field_comment}}|
+>>>fields_list
+
+## インデックス
+
+|インデックス名|カラム|複合順|Null許容|ユニーク|
+|---|---|---|---|---|
+<<<indexes_list
+|{{index_name}}|{{index_columns}}|{{index_order}}|{{index_nullable}}|{{index_unique}}|
+>>>indexes_list
 ```

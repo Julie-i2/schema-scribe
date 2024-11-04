@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+    ],
+    "settings": {
+        "typescript.tsc.autoDetect": "off",
+        "cSpell.words": [
+          "AUTOINCREMENT",
+          "datetime",
+          "instantclient",
+          "ltrim",
+          "mediumint",
+          "oracledb",
+          "rtrim",
+          "tinyint"
+        ],
+        "prettier.printWidth": 180,
+        "prettier.semi": false,
+        "prettier.singleQuote": true,
+        "prettier.tabWidth": 2,
+        "prettier.trailingComma": "all"
+    }
+}

@@ -147,7 +147,7 @@ export default class DBAccessorMySQL extends DBAccessorBase {
     return new Promise((resolve, reject) => {
       if (this.con) {
         const sql = [
-          'SELECT a."COLUMN_NAME", a."DATA_TYPE", a."NULLABLE", a."DATA_DEFAULT", b."COMMENTS"',
+          'SELECT a."COLUMN_NAME", a."DATA_TYPE", a."NULLABLE", a."DATA_DEFAULT", a."DATA_PRECISION", a."DATA_SCALE", b."COMMENTS"',
           'FROM "USER_TAB_COLUMNS" a',
           'LEFT JOIN "USER_COL_COMMENTS" b ON a."COLUMN_NAME"=b."COLUMN_NAME" AND b."TABLE_NAME"=:table_name_b',
           'WHERE a."TABLE_NAME"=:table_name_a',

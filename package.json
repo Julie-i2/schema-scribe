@@ -1,9 +1,9 @@
 {
-  "name": "dtomaker",
-  "displayName": "dtomaker",
+  "name": "scheme-scribe",
+  "displayName": "scheme-scribe",
   "description": "",
   "version": "0.2.0",
-  "publisher": "julie",
+  "publisher": "julie-i2",
   "license": "UNLICENSED",
   "private": true,
   "engines": {
@@ -13,55 +13,55 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:dtomaker.all",
-    "onCommand:dtomaker.alldto",
-    "onCommand:dtomaker.onedto",
-    "onCommand:dtomaker.allcreatesql",
-    "onCommand:dtomaker.allsqlite",
-    "onCommand:dtomaker.onesqlite"
+    "onCommand:scheme-scribe.all",
+    "onCommand:scheme-scribe.all_entities",
+    "onCommand:scheme-scribe.one_entity",
+    "onCommand:scheme-scribe.all_create_sql",
+    "onCommand:scheme-scribe.all_sqlite",
+    "onCommand:scheme-scribe.one_sqlite"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Julie-ver5/dtomaker.git"
+    "url": "https://github.com/Julie-ver5/scheme-scribe.git"
   },
   "main": "./out/extension.js",
   "icon": "images/icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "dtomaker.all",
-        "title": "%dtomaker.all.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.all",
+        "title": "%scheme-scribe.all.title%",
+        "category": "Scheme Scribe"
       },
       {
-        "command": "dtomaker.alldto",
-        "title": "%dtomaker.alldto.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.all_entities",
+        "title": "%scheme-scribe.all_entities.title%",
+        "category": "Scheme Scribe"
       },
       {
-        "command": "dtomaker.onedto",
-        "title": "%dtomaker.onedto.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.one_entity",
+        "title": "%scheme-scribe.one_entity.title%",
+        "category": "Scheme Scribe"
       },
       {
-        "command": "dtomaker.allcreatesql",
-        "title": "%dtomaker.allcreatesql.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.all_create_sql",
+        "title": "%scheme-scribe.all_create_sql.title%",
+        "category": "Scheme Scribe"
       },
       {
-        "command": "dtomaker.allsqlite",
-        "title": "%dtomaker.allsqlite.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.all_sqlite",
+        "title": "%scheme-scribe.all_sqlite.title%",
+        "category": "Scheme Scribe"
       },
       {
-        "command": "dtomaker.onesqlite",
-        "title": "%dtomaker.onesqlite.title%",
-        "category": "DTO Maker"
+        "command": "scheme-scribe.one_sqlite",
+        "title": "%scheme-scribe.one_sqlite.title%",
+        "category": "Scheme Scribe"
       }
     ],
     "configuration": [
       {
-        "title": "DTOMaker configuration"
+        "title": "Scheme Scribe configuration"
       }
     ]
   },

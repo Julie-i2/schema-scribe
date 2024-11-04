@@ -1,5 +1,5 @@
-import * as vscode from 'vscode'
 import { readFileSync } from 'fs'
+import * as vscode from 'vscode'
 import { findErrorMessage } from './Utility'
 
 /**
@@ -55,9 +55,9 @@ export class ConfigData {
     const errMessList: string[] = []
     for (const folder of vscode.workspace.workspaceFolders) {
       try {
-        const configFilePath = `${folder.uri.fsPath}/.dtomaker/config.json`
+        const configFilePath = `${folder.uri.fsPath}/.scheme-scribe/config.json`
         const configText = readFileSync(configFilePath, 'utf8')
-        const configList = JSON.parse(configText)['DTOMaker.configs'] ?? []
+        const configList = JSON.parse(configText)['SchemeScribe.configs'] ?? []
         for (const configJSON of configList) {
           const configData = new ConfigData(configJSON, folder)
           configs.push(configData)
@@ -76,7 +76,7 @@ export class ConfigData {
    * @param needle クイックピックアイテム
    * @param hashList 設定データリスト
    */
-  public static search(needle: vscode.QuickPickItem|undefined, hashList: ConfigData[]): ConfigData|null {
+  public static search(needle: vscode.QuickPickItem | undefined, hashList: ConfigData[]): ConfigData | null {
     const targetA = JSON.stringify(needle ?? {})
     for (const hash of hashList) {
       const targetB = JSON.stringify(hash.toQuickPickItem())
@@ -125,7 +125,7 @@ export class SettingFormat {
   constructor(config: any, workspaceRoot: string) {
     config = config ?? {}
     this.outputReset = !!config.outputReset
-    this.outputPath =  (config.outputPath ?? '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
+    this.outputPath = (config.outputPath ?? '${workspaceRoot}/output').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.templatePath = (config.templatePath ?? '').replace(/\${workspaceRoot}/g, workspaceRoot)
     this.combineFileName = config.combineFileName ?? ''
     this.type = config.type ?? ''

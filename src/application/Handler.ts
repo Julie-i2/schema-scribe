@@ -1,17 +1,16 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { ConfigData } from './ConfigData'
+import { EntityMaker } from '../builder/EntityMaker'
+import { SQLiteGenerator } from '../builder/SQLBuilderForSqlite'
 import DBAccessor from '../db/DBAccessor'
 import DBAccessorBase from '../db/DBAccessorBase'
-import { DTOMaker } from '../builder/DTOMaker'
-import { SQLiteGenerator } from '../builder/SQLBuilderForSqlite'
+import { ConfigData } from './ConfigData'
 
 /**
- * ハンドラー
+ * Scheme Scribeハンドラー
  */
-export class DTOMakerHandler {
-
+export class SchemeScribeHandler {
   /**
    * 処理を受け付ける
    * @param configs
@@ -24,13 +23,13 @@ export class DTOMakerHandler {
   }
 
   /**
-   * DTO要件だけの処理を受け付ける
+   * Entity要件だけの処理を受け付ける
    * @param configs
    * @param context VSCode拡張機能情報
    */
-  public static async execDTO(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
+  public static async execEntity(configs: ConfigData[], context: vscode.ExtensionContext): Promise<void> {
     for (const config of configs) {
-      if (config.format.type === 'dto') {
+      if (config.format.type === 'entity') {
         await this.execOne(config, context)
       }
     }
@@ -68,11 +67,11 @@ export class DTOMakerHandler {
    * @param context VSCode拡張機能情報
    */
   public static async execOne(config: ConfigData, context: vscode.ExtensionContext): Promise<void> {
-    const processor = new DTOMakerProcessor(config, context)
+    const processor = new SchemeScribeProcessor(config, context)
     await processor.loadTargetDBTables()
     switch (config.format.type) {
-      case 'dto': {
-        await processor.buildDTO()
+      case 'entity': {
+        await processor.buildEntity()
         break
       }
       case 'create': {
@@ -88,9 +87,9 @@ export class DTOMakerHandler {
 }
 
 /**
- * DTOメーカー処理機
+ * Scheme Scribe Processor
  */
-class DTOMakerProcessor {
+class SchemeScribeProcessor {
   private config: ConfigData
   private dbAccessor: DBAccessorBase
   private tableNames: string[] = []
@@ -110,31 +109,31 @@ class DTOMakerProcessor {
    * テーブル名リストを取得
    */
   public async loadTargetDBTables(): Promise<void> {
-    await this.dbAccessor.connection();
-    this.tableNames = (this.config.tableList.length > 0) ? this.config.tableList : await this.dbAccessor.getTables()
+    await this.dbAccessor.connection()
+    this.tableNames = this.config.tableList.length > 0 ? this.config.tableList : await this.dbAccessor.getTables()
   }
 
   /**
-   * DTO生成
+   * Entity生成
    * @param config 設定データ
    */
-  public async buildDTO(): Promise<void> {
+  public async buildEntity(): Promise<void> {
     const template = fs.readFileSync(this.config.format.templatePath, 'utf8')
-    const dtoMaker = new DTOMaker(template, this.config.format)
+    const entityMaker = new EntityMaker(template, this.config.format)
     const contentMap = new Map<string, string>()
     for (const tableName of this.tableNames) {
       const dbTable = await this.dbAccessor.getTableInfo(tableName)
-      const dtoBuilder = dtoMaker.createBuilder(dbTable)
+      const entityBuilder = entityMaker.createBuilder(dbTable)
       const tableColumns = await this.dbAccessor.getTableColumns(dbTable.getName())
       for (const dbTableColumn of tableColumns) {
-        dtoBuilder.addField(dbTableColumn)
+        entityBuilder.addField(dbTableColumn)
       }
       const tableIndexes = await this.dbAccessor.getTableIndexes(dbTable.getName())
       for (const tableIndex of tableIndexes) {
-        dtoBuilder.addIndex(tableIndex)
+        entityBuilder.addIndex(tableIndex)
       }
-      const fileName = this.config.format.combineFileName || dtoBuilder.getClassName()
-      const content = dtoBuilder.generateContent(this.config.format.eol)
+      const fileName = this.config.format.combineFileName || entityBuilder.getClassName()
+      const content = entityBuilder.generateContent(this.config.format.eol)
       const previousContent = contentMap.get(fileName) ?? ''
       contentMap.set(fileName, `${previousContent}${content}`)
     }
