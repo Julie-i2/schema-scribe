@@ -1,8 +1,8 @@
 {
-    "scheme-scribe.all.title": "すべての作成課題を実行",
-    "scheme-scribe.all_entities.title": "すべてのEntityを作成",
-    "scheme-scribe.one_entity.title": "1つのEntityを作成",
-    "scheme-scribe.all_create_sql.title": "すべてのCREATE SQLを作成",
-    "scheme-scribe.all_sqlite.title": "すべてのSQLiteを作成",
-    "scheme-scribe.one_sqlite.title": "1つのSQLiteを作成"
+    "schema-scribe.all.title": "すべての作成課題を実行",
+    "schema-scribe.all_entities.title": "すべてのEntityを作成",
+    "schema-scribe.one_entity.title": "1つのEntityを作成",
+    "schema-scribe.all_create_sql.title": "すべてのCREATE SQLを作成",
+    "schema-scribe.all_sqlite.title": "すべてのSQLiteを作成",
+    "schema-scribe.one_sqlite.title": "1つのSQLiteを作成"
 }

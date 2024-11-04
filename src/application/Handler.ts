@@ -8,9 +8,9 @@ import DBAccessorBase from '../db/DBAccessorBase'
 import { ConfigData } from './ConfigData'
 
 /**
- * Scheme Scribeハンドラー
+ * Schema Scribeハンドラー
  */
-export class SchemeScribeHandler {
+export class SchemaScribeHandler {
   /**
    * 処理を受け付ける
    * @param configs
@@ -67,7 +67,7 @@ export class SchemeScribeHandler {
    * @param context VSCode拡張機能情報
    */
   public static async execOne(config: ConfigData, context: vscode.ExtensionContext): Promise<void> {
-    const processor = new SchemeScribeProcessor(config, context)
+    const processor = new SchemaScribeProcessor(config, context)
     await processor.loadTargetDBTables()
     switch (config.format.type) {
       case 'entity': {
@@ -87,9 +87,9 @@ export class SchemeScribeHandler {
 }
 
 /**
- * Scheme Scribe Processor
+ * Schema Scribe Processor
  */
-class SchemeScribeProcessor {
+class SchemaScribeProcessor {
   private config: ConfigData
   private dbAccessor: DBAccessorBase
   private tableNames: string[] = []

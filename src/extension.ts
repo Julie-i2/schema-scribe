@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { ConfigData } from './application/ConfigData'
-import { SchemeScribeHandler } from './application/Handler'
+import { SchemaScribeHandler } from './application/Handler'
 import { findErrorMessage } from './application/Utility'
 
 /**
@@ -8,11 +8,11 @@ import { findErrorMessage } from './application/Utility'
  * @param context
  */
 export function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel('Scheme Scribe')
+  const outputChannel = vscode.window.createOutputChannel('Schema Scribe')
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "Scheme Scribe" is now active!')
+  console.log('Congratulations, your extension "Schema Scribe" is now active!')
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (errMess) {
         console.error(err)
         outputChannel.appendLine(errMess)
-        vscode.window.showErrorMessage(`【Scheme Scribe】${errMess}`)
+        vscode.window.showErrorMessage(`【Schema Scribe】${errMess}`)
       }
     }
   }
@@ -46,27 +46,27 @@ export function activate(context: vscode.ExtensionContext) {
   /**
    * すべての要件を作成
    */
-  const all = vscode.commands.registerCommand('scheme-scribe.all', async () => {
+  const all = vscode.commands.registerCommand('schema-scribe.all', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await SchemeScribeHandler.exec(configs, context)
-      vscode.window.showInformationMessage('Scheme Scribe: Success! Created All Data')
+      await SchemaScribeHandler.exec(configs, context)
+      vscode.window.showInformationMessage('Schema Scribe: Success! Created All Data')
     })
   })
 
   /**
    * すべてのEntityを作成
    */
-  const allEntities = vscode.commands.registerCommand('scheme-scribe.all_entity', async () => {
+  const allEntities = vscode.commands.registerCommand('schema-scribe.all_entity', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await SchemeScribeHandler.execEntity(configs, context)
-      vscode.window.showInformationMessage('Scheme Scribe: Success! Created All Entities')
+      await SchemaScribeHandler.execEntity(configs, context)
+      vscode.window.showInformationMessage('Schema Scribe: Success! Created All Entities')
     })
   })
 
   /**
    * 1つのEntityを作成
    */
-  const oneEntity = vscode.commands.registerCommand('scheme-scribe.one_entity', () => {
+  const oneEntity = vscode.commands.registerCommand('schema-scribe.one_entity', () => {
     commonProcess(async (configs: ConfigData[]) => {
       const pickItems: vscode.QuickPickItem[] = []
       for (const config of configs) {
@@ -78,8 +78,8 @@ export function activate(context: vscode.ExtensionContext) {
         try {
           const config = ConfigData.search(choice, configs)
           if (config) {
-            await SchemeScribeHandler.execOne(config, context)
-            vscode.window.showInformationMessage('Scheme Scribe: Success! Created Entity')
+            await SchemaScribeHandler.execOne(config, context)
+            vscode.window.showInformationMessage('Schema Scribe: Success! Created Entity')
           }
         } catch (err) {
           if (choice) {
@@ -94,27 +94,27 @@ export function activate(context: vscode.ExtensionContext) {
   /**
    * すべてのSQLiteを作成
    */
-  const allCreateSQL = vscode.commands.registerCommand('scheme-scribe.all_create_sql', async () => {
+  const allCreateSQL = vscode.commands.registerCommand('schema-scribe.all_create_sql', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await SchemeScribeHandler.execCreateSQL(configs, context)
-      vscode.window.showInformationMessage('Scheme Scribe: Success! Created All CreateSQL')
+      await SchemaScribeHandler.execCreateSQL(configs, context)
+      vscode.window.showInformationMessage('Schema Scribe: Success! Created All CreateSQL')
     })
   })
 
   /**
    * すべてのSQLiteを作成
    */
-  const allSQLite = vscode.commands.registerCommand('scheme-scribe.all_sqlite', async () => {
+  const allSQLite = vscode.commands.registerCommand('schema-scribe.all_sqlite', async () => {
     commonProcess(async (configs: ConfigData[]) => {
-      await SchemeScribeHandler.execSQLite(configs, context)
-      vscode.window.showInformationMessage('Scheme Scribe: Success! Created All SQLite')
+      await SchemaScribeHandler.execSQLite(configs, context)
+      vscode.window.showInformationMessage('Schema Scribe: Success! Created All SQLite')
     })
   })
 
   /**
    * 1つのSQLiteを作成
    */
-  const oneSQLite = vscode.commands.registerCommand('scheme-scribe.one_sqlite', () => {
+  const oneSQLite = vscode.commands.registerCommand('schema-scribe.one_sqlite', () => {
     commonProcess(async (configs: ConfigData[]) => {
       const pickItems: vscode.QuickPickItem[] = []
       for (const config of configs) {
@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
           const config = ConfigData.search(choice, configs)
           if (config) {
-            await SchemeScribeHandler.execOne(config, context)
+            await SchemaScribeHandler.execOne(config, context)
             vscode.window.showInformationMessage('SQLite Builder: Success! Created SQLite')
           }
         } catch (err) {

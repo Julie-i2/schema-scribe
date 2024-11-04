@@ -1,8 +1,8 @@
 {
-    "scheme-scribe.all.title": "Make all issue",
-    "scheme-scribe.all_entities.title": "Make all Entities",
-    "scheme-scribe.one_entity.title": "Make selected Entity",
-    "scheme-scribe.all_create_sql.title": "Make all CreateSQL",
-    "scheme-scribe.all_sqlite.title": "Make all SQLite",
-    "scheme-scribe.one_sqlite.title": "Make selected SQLite"
+    "schema-scribe.all.title": "Make all issue",
+    "schema-scribe.all_entities.title": "Make all Entities",
+    "schema-scribe.one_entity.title": "Make selected Entity",
+    "schema-scribe.all_create_sql.title": "Make all CreateSQL",
+    "schema-scribe.all_sqlite.title": "Make all SQLite",
+    "schema-scribe.one_sqlite.title": "Make selected SQLite"
 }

@@ -1,6 +1,6 @@
 {
-  "name": "scheme-scribe",
-  "displayName": "scheme-scribe",
+  "name": "schema-scribe",
+  "displayName": "schema-scribe",
   "description": "",
   "version": "0.2.1",
   "publisher": "julie-i2",
@@ -13,55 +13,55 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:scheme-scribe.all",
-    "onCommand:scheme-scribe.all_entities",
-    "onCommand:scheme-scribe.one_entity",
-    "onCommand:scheme-scribe.all_create_sql",
-    "onCommand:scheme-scribe.all_sqlite",
-    "onCommand:scheme-scribe.one_sqlite"
+    "onCommand:schema-scribe.all",
+    "onCommand:schema-scribe.all_entities",
+    "onCommand:schema-scribe.one_entity",
+    "onCommand:schema-scribe.all_create_sql",
+    "onCommand:schema-scribe.all_sqlite",
+    "onCommand:schema-scribe.one_sqlite"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Julie-ver5/scheme-scribe.git"
+    "url": "https://github.com/Julie-i2/schema-scribe.git"
   },
   "main": "./out/extension.js",
   "icon": "images/icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "scheme-scribe.all",
-        "title": "%scheme-scribe.all.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.all",
+        "title": "%schema-scribe.all.title%",
+        "category": "Schema Scribe"
       },
       {
-        "command": "scheme-scribe.all_entities",
-        "title": "%scheme-scribe.all_entities.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.all_entities",
+        "title": "%schema-scribe.all_entities.title%",
+        "category": "Schema Scribe"
       },
       {
-        "command": "scheme-scribe.one_entity",
-        "title": "%scheme-scribe.one_entity.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.one_entity",
+        "title": "%schema-scribe.one_entity.title%",
+        "category": "Schema Scribe"
       },
       {
-        "command": "scheme-scribe.all_create_sql",
-        "title": "%scheme-scribe.all_create_sql.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.all_create_sql",
+        "title": "%schema-scribe.all_create_sql.title%",
+        "category": "Schema Scribe"
       },
       {
-        "command": "scheme-scribe.all_sqlite",
-        "title": "%scheme-scribe.all_sqlite.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.all_sqlite",
+        "title": "%schema-scribe.all_sqlite.title%",
+        "category": "Schema Scribe"
       },
       {
-        "command": "scheme-scribe.one_sqlite",
-        "title": "%scheme-scribe.one_sqlite.title%",
-        "category": "Scheme Scribe"
+        "command": "schema-scribe.one_sqlite",
+        "title": "%schema-scribe.one_sqlite.title%",
+        "category": "Schema Scribe"
       }
     ],
     "configuration": [
       {
-        "title": "Scheme Scribe configuration"
+        "title": "Schema Scribe configuration"
       }
     ]
   },

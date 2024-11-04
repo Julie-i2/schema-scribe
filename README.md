@@ -1,6 +1,6 @@
-# Scheme Scribe
+# Schema Scribe
 
-`Scheme Scribe`はデータベースのテーブル情報を参照し、Entityクラスを自動で生成するVSCode拡張機能です。  
+`Schema Scribe`はデータベースのテーブル情報を参照し、Entityクラスを自動で生成するVSCode拡張機能です。  
 フォルダごとに設定でき、複数のデータベースにも対応できます。  
 ベースになった元の拡張機能`DTO Maker`の進化版です。
 
@@ -12,18 +12,18 @@
 
 ## 使用方法
 
-コマンドパレット(`F1`)を開き、「scheme scribe」と入力するとコマンドが表示されます。  
+コマンドパレット(`F1`)を開き、「schema scribe」と入力するとコマンドが表示されます。  
 コマンドを実行する前に以下の設定を行ってください。
 
 ### 設定ファイルの用意
 
-1. プロジェクトフォルダ直下に`.scheme-scribe`フォルダを用意します。
-2. `.scheme-scribe`フォルダ内に`config.json`と`テンプレート用テキストファイル`を用意します。
+1. プロジェクトフォルダ直下に`.schema-scribe`フォルダを用意します。
+2. `.schema-scribe`フォルダ内に`config.json`と`テンプレート用テキストファイル`を用意します。
 
 ### 設定ファイルの詳細
 
 参照するデータベースの設定やEntityクラスのフォーマット、出力先等を設定することが可能です。  
-設定は`workspace`直下の`.scheme-scribe/config.json`に記載します。
+設定は`workspace`直下の`.schema-scribe/config.json`に記載します。
 
 > **注意**：この設定はVS Codeの`setting.json`とは異なります。
 
@@ -31,7 +31,7 @@ For example:
 
 ```json
 {
-  "SchemeScribe.configs": [
+  "SchemaScribe.configs": [
     {
       "database": {
         // データベースのホスト
@@ -144,7 +144,7 @@ use Standard\IO\Data\DTO\AbstractParameter;
  * データベースDTO
  * Table: {{table_name}}
  * {{class_desc}}
- * @author Scheme Scribe
+ * @author Schema Scribe
  */
 class {{class_name}} extends AbstractParameter
 {

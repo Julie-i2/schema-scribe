@@ -55,9 +55,9 @@ export class ConfigData {
     const errMessList: string[] = []
     for (const folder of vscode.workspace.workspaceFolders) {
       try {
-        const configFilePath = `${folder.uri.fsPath}/.scheme-scribe/config.json`
+        const configFilePath = `${folder.uri.fsPath}/.schema-scribe/config.json`
         const configText = readFileSync(configFilePath, 'utf8')
-        const configList = JSON.parse(configText)['SchemeScribe.configs'] ?? []
+        const configList = JSON.parse(configText)['SchemaScribe.configs'] ?? []
         for (const configJSON of configList) {
           const configData = new ConfigData(configJSON, folder)
           configs.push(configData)
